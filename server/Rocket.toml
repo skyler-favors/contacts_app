@@ -1,0 +1,3 @@
+[default.databases.diesel]
+url = "postgresql://dboperator:operatorpass123@localhost:5243/postgres"
+timeout = 10

@@ -1,0 +1,11 @@
+mutation {
+  createUser(
+    data: {
+      first: "sky"
+      last: "man"
+    }) {
+    id
+    first
+    last
+  }
+}
