@@ -34,11 +34,11 @@ async fn list(db: Db) -> Result<Json<Vec<Contact>>> {
 #[get("/read/id/<id>")]
 async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
     // return the first person with the given id
-    let p: PersonEntity = get_person(&db, QueryValue::Id(id)).await?;
-    let address = get_address(&db, p.address_id).await?;
-    let phones = get_phones(&db, p.person_id).await?;
-    let emails = get_emails(&db, p.person_id).await?;
-    let contact = vec![contact_builder(p, address, phones, emails)];
+    let p: Vec<PersonEntity> = get_person(&db, QueryValue::Id(id)).await?;
+    let address = get_address(&db, p[0].address_id).await?;
+    let phones = get_phones(&db, p[0].person_id).await?;
+    let emails = get_emails(&db, p[0].person_id).await?;
+    let contact = vec![contact_builder(p[0].clone(), address, phones, emails)];
 
     Ok(Json(contact))
 }
@@ -47,13 +47,18 @@ async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
 async fn query_by_name(db: Db, name: String) -> Result<Json<Vec<Contact>>> {
     // return first person found with the given name
     // uses LIKE for fuzzy matching
-    let p: PersonEntity = get_person(&db, QueryValue::Name(name)).await?;
-    let address = get_address(&db, p.address_id).await?;
-    let phones = get_phones(&db, p.person_id).await?;
-    let emails = get_emails(&db, p.person_id).await?;
-    let contact = vec![contact_builder(p, address, phones, emails)];
+    let people: Vec<PersonEntity> = get_person(&db, QueryValue::Name(name)).await?;
 
-    Ok(Json(contact))
+    let mut contacts: Vec<Contact> = Vec::new();
+    for p in people {
+        let address = get_address(&db, p.address_id).await?;
+        let phones = get_phones(&db, p.person_id).await?;
+        let emails = get_emails(&db, p.person_id).await?;
+        let contact = contact_builder(p, address, phones, emails);
+        contacts.push(contact);
+    }
+
+    Ok(Json(contacts))
 }
 
 pub fn stage() -> AdHoc {

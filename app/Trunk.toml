@@ -1,5 +1,5 @@
 [build]
-dist = "../dist/"
+dist = "../server/dist/"
 
 [serve]
-port = 8000
+port = 8080

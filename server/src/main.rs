@@ -16,4 +16,5 @@ fn rocket() -> _ {
     rocket::build()
         .attach(routes::read::stage())
         .attach(routes::create::stage())
+        .attach(routes::app::stage())
 }

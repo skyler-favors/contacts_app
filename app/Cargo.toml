@@ -6,16 +6,37 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-reqwest = { version = "0.11.11", features = ["json"] }
-tokio = { version = "1.20.0", features = ["full"] }
-
-#yew = "0.19"
+yew = "0.19"
+yew-hooks = "0.1.56"
 #wasm-bindgen = "0.2.81"
-#my-web-app = {path=".."}
-#yew = {version ="0.18", features = ["cbor"]}
-#anyhow = "1.0.44"
-#getrandom = { version = "0.2", features = ["js"] }
-#log = "0.4"
-#wasm-logger = "0.2"
+#serde = { version = "1.0", features = ["derive"] }
+#serde_json = "1.0"
+#reqwest = { version = "0.11.11", features = ["json"] }
+#web-sys = "0.3.58"
+############
+log = "0.4"
+gloo = "0.7"
+js-sys = "0.3"
+serde = "1"
+reqwest = { version = "0.11.7", features = ["json"] }
+#yew = { git = "https://github.com/yewstack/yew", features=["csr"] }
+#yew-router = { git = "https://github.com/yewstack/yew" }
+#yew-hooks = { path = "../../crates/yew-hooks" }
+wasm-bindgen = "0.2"
+wasm-logger = "0.2.0"
+wee_alloc = "0.4.5"
+
+[dependencies.web-sys]
+version = "0.3"
+features = ["Window"]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.14"
+
+[dev-dependencies.web-sys]
+version = "0.3"
+features = [
+  "Document",
+  "Element",
+  "HtmlCollection",
+]

@@ -56,20 +56,22 @@ pub enum QueryValue {
 }
 
 // select a specific person
-pub async fn get_person(db: &Db, query_value: QueryValue) -> Result<PersonEntity> {
+pub async fn get_person(db: &Db, query_value: QueryValue) -> Result<Vec<PersonEntity>> {
     match query_value {
         QueryValue::Id(id) => {
-            let person: PersonEntity = db
-                .run(move |conn| people::table.filter(people::person_id.eq(id)).first(conn))
+            let person: Vec<PersonEntity> = db
+                .run(move |conn| people::table
+                    .filter(people::person_id.eq(id))
+                    .load(conn))
                 .await?;
             Ok(person)
         }
         QueryValue::Name(name) => {
-            let person: PersonEntity = db
+            let person: Vec<PersonEntity> = db
                 .run(move |conn| {
                     people::table
                         .filter(people::firstname.like(format!("%{}%", name)))
-                        .first(conn)
+                        .load(conn)
                 })
                 .await?;
             Ok(person)

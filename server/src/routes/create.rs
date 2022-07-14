@@ -18,11 +18,11 @@ type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
 async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>> {
     // create address insert
     let address = Address {
-        street: contact.street.clone(),
-        city: contact.city.clone(),
-        state: contact.state.clone(),
-        zip: contact.zip.clone(),
-        country: contact.country.clone(),
+        street: contact.street.clone().to_lowercase(),
+        city: contact.city.clone().to_lowercase(),
+        state: contact.state.clone().to_lowercase(),
+        zip: contact.zip.clone().to_lowercase(),
+        country: contact.country.clone().to_lowercase(),
     };
 
     // insert address and return new address_id
@@ -35,12 +35,12 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
 
     // same thing, create person for insert
     let person = Person {
-        firstname: contact.firstname.clone(),
-        lastname: contact.lastname.clone(),
-        nickname: contact.nickname.clone(),
-        company: contact.company.clone(),
-        url: contact.url.clone(),
-        notes: contact.notes.clone(),
+        firstname: contact.firstname.clone().to_lowercase(),
+        lastname: contact.lastname.clone().to_lowercase(),
+        nickname: contact.nickname.clone().to_lowercase(),
+        company: contact.company.clone().to_lowercase(),
+        url: contact.url.clone().to_lowercase(),
+        notes: contact.notes.clone().to_lowercase(),
         favorite: contact.favorite,
         active: contact.active,
         address_id: address_id[0],
@@ -58,7 +58,7 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
     for e in &contact.emails {
         let email = Email {
             person_id: person_id[0],
-            email: e.clone(),
+            email: e.clone().to_lowercase(),
         };
 
         // insert email
@@ -73,7 +73,7 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
     for p in &contact.phone_numbers {
         let phone_number = PhoneNumber {
             person_id: person_id[0],
-            num: p.clone(),
+            num: p.clone().to_lowercase(),
         };
 
         db.run(move |conn| {
