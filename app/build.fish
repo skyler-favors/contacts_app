@@ -30,7 +30,7 @@ function help
 end
 
 if test -z $argv
-  help
+  serve_debug
 end
 
 for arg in $argv

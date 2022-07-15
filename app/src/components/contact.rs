@@ -1,6 +1,7 @@
 // Components for the contact struct
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use titlecase::titlecase;
 
 use crate::shared::Contact;
 
@@ -12,10 +13,14 @@ pub struct ContactListProps {
 // creates a list item for each contact in vector
 #[function_component(ContactList)]
 pub fn contact_list(props: &ContactListProps) -> Html {
+    // sort contacts by first name
+    let mut contacts: Vec<Contact> = props.contacts.clone(); 
+    contacts.sort_by_key(|c| c.firstname.clone());
+
     html! {
-        props.contacts.iter().map(|contact| {
+        contacts.iter().map(|contact| {
             html!{
-                <li class={classes!("flex", "justify-center", "flex-col")}>
+                <li class={classes!("my-1")}>
                     <ContactLink contact={contact.clone()} />
                 </li>
             }
@@ -43,11 +48,13 @@ fn contact_link(props: &ContactLinkProps) -> Html {
 
     html! {
         <>
-        <button {onclick}>{ format!("{} {}",contact.firstname, contact.lastname) }</button>
+        <button {onclick} class={classes!("text-xl", "font-bold")}>
+            { format!("{} {}",titlecase(&contact.firstname), titlecase(&contact.lastname)) }
+        </button>
 
         if *toggle {
             <div class={classes!()}>
-                <ul class={classes!()}>
+                <ul class={classes!("text-zinc-400")}>
                     <li>{format!("Nickname: {}", &contact.nickname)}</li>
                     <li>{format!("Company: {}", &contact.company)}</li>
                     <li>{format!("Website: {}", &contact.url)}</li>

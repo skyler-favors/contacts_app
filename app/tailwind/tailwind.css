@@ -11,5 +11,8 @@
     @apply text-zinc-200;
   }
 
+  ul > li {
+    @apply my-3;
+  }
 
 }

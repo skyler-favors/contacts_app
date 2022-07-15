@@ -39,7 +39,7 @@ pub fn list_contacts() -> Html {
             if input.value() == "" {
                 search_value.set(None);
             } else {
-                search_value.set(Some(input.value()));
+                search_value.set(Some(input.value().to_lowercase()));
             }
         })
     };
