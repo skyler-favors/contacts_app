@@ -1,3 +1,4 @@
+// Components for the contact struct
 use yew::prelude::*;
 use yew_hooks::prelude::*;
 
@@ -8,12 +9,15 @@ pub struct ContactListProps {
     pub contacts: Vec<Contact>,
 }
 
+// creates a list item for each contact in vector
 #[function_component(ContactList)]
 pub fn contact_list(props: &ContactListProps) -> Html {
     html! {
         props.contacts.iter().map(|contact| {
             html!{
-                <li><ContactLink contact={contact.clone()} /></li>
+                <li class={classes!("flex", "justify-center", "flex-col")}>
+                    <ContactLink contact={contact.clone()} />
+                </li>
             }
         }).collect::<Html>()
     }
@@ -25,6 +29,7 @@ struct ContactLinkProps {
 }
 
 // make this a struct component so that you can reset the toggle on search
+// Makes each list item a button attached to a hidden div with the info
 #[function_component(ContactLink)]
 fn contact_link(props: &ContactLinkProps) -> Html {
     let contact = &props.contact;
@@ -41,8 +46,8 @@ fn contact_link(props: &ContactLinkProps) -> Html {
         <button {onclick}>{ format!("{} {}",contact.firstname, contact.lastname) }</button>
 
         if *toggle {
-            <div>
-                <ul>
+            <div class={classes!()}>
+                <ul class={classes!()}>
                     <li>{format!("Nickname: {}", &contact.nickname)}</li>
                     <li>{format!("Company: {}", &contact.company)}</li>
                     <li>{format!("Website: {}", &contact.url)}</li>

@@ -1,6 +1,12 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-/// You can use reqwest or other crates to fetch your api.
+#[derive(Clone, Debug, PartialEq)]
+pub enum Error {
+    RequestError,
+    DeserializeError,
+}
+
+// used for get requests
 pub async fn fetch<T>(url: String) -> Result<T, Error>
 where
     T: DeserializeOwned,
@@ -16,13 +22,6 @@ where
     } else {
         Err(Error::RequestError)
     }
-}
-
-// You can use thiserror to define your errors.
-#[derive(Clone, Debug, PartialEq)]
-pub enum Error {
-    RequestError,
-    DeserializeError,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
