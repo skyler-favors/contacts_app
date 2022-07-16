@@ -6,6 +6,7 @@ A simple app that stores contacts.
 - Yew: front-end component based framework.  Like React
 - Rocket: back-end web framework, much slower than other frameworks (like actix), but much easier to use and understand.
 - Diesel: Sql ORM, maps Sql commands to functions.  Adds a lot of useful functionality.
+- Tailwind: CSS framework.
 
 ### Unimplemeted
 - Tauri: creates a desktop application from a webpage.
