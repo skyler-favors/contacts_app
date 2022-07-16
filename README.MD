@@ -1,5 +1,8 @@
 # Contacts App WIP
-A simple app that stores contacts.
+- A simple app that stores contacts.
+
+- I started by making an API that makes CRUD operations on a database that stores all of the contacts.
+- Next I made a website that calls simple get/post requests to display and manipulate the database.
 
 ## Tech
 ### Implemented
