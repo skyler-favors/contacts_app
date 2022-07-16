@@ -3,16 +3,14 @@ use rocket::fairing::AdHoc;
 use rocket_sync_db_pools::diesel;
 use diesel::prelude::*;
 use rocket::response::status::Created;
-use rocket::response::Debug;
 
 use crate::models::{Person, Address, Email, PhoneNumber};
 use crate::schema::*;
-use crate::helper::shared::Contact;
+use crate::helper::shared::{Contact, Result};
 use crate::*;
 
 #[database("diesel")]
 struct Db(diesel::PgConnection);
-type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
 
 #[post("/", data = "<contact>")]
 async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>> {

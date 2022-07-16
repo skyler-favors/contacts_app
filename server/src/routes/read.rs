@@ -32,7 +32,7 @@ async fn list(db: Db) -> Result<Json<Vec<Contact>>> {
 }
 
 #[get("/read/id/<id>")]
-async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
+pub async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
     // return the first person with the given id
     let p: Vec<PersonEntity> = get_person(&db, QueryValue::Id(id)).await?;
     let address = get_address(&db, p[0].address_id).await?;
@@ -44,7 +44,7 @@ async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
 }
 
 #[get("/read/name/<name>")]
-async fn query_by_name(db: Db, name: String) -> Result<Json<Vec<Contact>>> {
+pub async fn query_by_name(db: Db, name: String) -> Result<Json<Vec<Contact>>> {
     // return first person found with the given name
     // uses LIKE for fuzzy matching
     let people: Vec<PersonEntity> = get_person(&db, QueryValue::Name(name)).await?;
