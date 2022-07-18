@@ -14,8 +14,8 @@ async fn fetch_contact(name: String) -> Result<Vec<Contact>, Error> {
 }
 
 // the list container that holds contact components
-#[function_component(ListContacts)]
-pub fn list_contacts() -> Html {
+#[function_component(ContactList)]
+pub fn contact_list() -> Html {
     // holds the value thats typed into the input
     let search_value: UseStateHandle<Option<String>> = use_state(|| None);
 
@@ -30,9 +30,7 @@ pub fn list_contacts() -> Html {
     });
 
     // saves the input value
-    let search_value_input = search_value;
     let oninput = {
-        let search_value = search_value_input;
         Callback::from(move |e: InputEvent| {
             let input: HtmlInputElement = e.target_unchecked_into();
 
@@ -93,7 +91,7 @@ pub fn list_contacts() -> Html {
                     html! {
                         <>
                             <ol class={classes!("flex", "justify-center", "flex-col")}>
-                                <ContactList contacts={contacts.clone()} />
+                                <CreateContactList contacts={contacts.clone()} />
                             </ol>
                         </>
                         }

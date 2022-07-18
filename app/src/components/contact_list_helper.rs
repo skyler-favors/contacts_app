@@ -6,13 +6,13 @@ use titlecase::titlecase;
 use crate::shared::Contact;
 
 #[derive(Properties, PartialEq)]
-pub struct ContactListProps {
+pub struct CreateContactListProps {
     pub contacts: Vec<Contact>,
 }
 
 // creates a list item for each contact in vector
-#[function_component(ContactList)]
-pub fn contact_list(props: &ContactListProps) -> Html {
+#[function_component(CreateContactList)]
+pub fn create_contact_list(props: &CreateContactListProps) -> Html {
     // sort contacts by first name
     let mut contacts: Vec<Contact> = props.contacts.clone(); 
     contacts.sort_by_key(|c| c.firstname.clone());

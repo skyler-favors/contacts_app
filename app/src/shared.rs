@@ -1,5 +1,7 @@
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use reqwest::Url;
 
+// Error used for fetch requestes
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
     RequestError,
@@ -22,6 +24,19 @@ where
     } else {
         Err(Error::RequestError)
     }
+}
+
+// used for post requests
+pub async fn post(url: String, contact: Contact) -> Result<(), reqwest::Error> {
+    let host = Url::parse(&url).unwrap();
+    let client = reqwest::Client::new();
+    client
+        .post(host)
+        .json(&contact)
+        .send()
+        .await?;
+
+    Ok(())
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
