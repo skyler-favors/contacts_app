@@ -1,9 +1,8 @@
 use diesel::prelude::*;
-use rocket_sync_db_pools::diesel;
 
-use crate::models::{AddressEntity, PersonEntity};
+use crate::models::{AddressEntity, PersonEntity, PhoneNumberEntity, EmailEntity};
 use crate::schema::*;
-use super::shared::*;
+use crate::crud::shared::{Contact, Db, Result};
 
 // get address info for person
 pub async fn get_address(db: &Db, address_id: i32) -> Result<AddressEntity> {
@@ -34,6 +33,19 @@ pub async fn get_phones(db: &Db, person_id: i32) -> Result<Vec<String>> {
     Ok(phone_numbers)
 }
 
+pub async fn get_phone_ents(db: &Db, person_id: i32) -> Result<Vec<PhoneNumberEntity>> {
+    // SELECT num FROM phone_numbers WHERE phone_id = id.phone_id
+    let phone_numbers: Vec<PhoneNumberEntity> = db
+        .run(move |conn| {
+            phone_numbers::table
+                .filter(phone_numbers::person_id.eq(person_id))
+                .load(conn)
+        })
+        .await?;
+
+    Ok(phone_numbers)
+}
+
 // get all emails for 1 person
 pub async fn get_emails(db: &Db, person_id: i32) -> Result<Vec<String>> {
     // SELECT email FROM emails WHERE email_id = id.email_id
@@ -49,34 +61,38 @@ pub async fn get_emails(db: &Db, person_id: i32) -> Result<Vec<String>> {
     Ok(emails)
 }
 
-// used for get_person
-pub enum QueryValue {
-    Id(i32),
-    Name(String),
+pub async fn get_email_ents(db: &Db, person_id: i32) -> Result<Vec<EmailEntity>> {
+    // SELECT email FROM emails WHERE email_id = id.email_id
+    let emails: Vec<EmailEntity> = db
+        .run(move |conn| {
+            emails::table
+                .filter(emails::person_id.eq(person_id))
+                .load(conn)
+        })
+        .await?;
+
+    Ok(emails)
 }
 
 // select a specific person
-pub async fn get_person(db: &Db, query_value: QueryValue) -> Result<Vec<PersonEntity>> {
-    match query_value {
-        QueryValue::Id(id) => {
-            let person: Vec<PersonEntity> = db
-                .run(move |conn| people::table
-                    .filter(people::person_id.eq(id))
-                    .load(conn))
-                .await?;
-            Ok(person)
-        }
-        QueryValue::Name(name) => {
-            let person: Vec<PersonEntity> = db
-                .run(move |conn| {
-                    people::table
-                        .filter(people::firstname.like(format!("%{}%", name)))
-                        .load(conn)
-                })
-                .await?;
-            Ok(person)
-        }
-    }
+pub async fn get_person_by_id(db: &Db, person_id: i32) -> Result<PersonEntity> {
+    let person: PersonEntity = db
+        .run(move |conn| people::table
+            .filter(people::person_id.eq(person_id))
+            .first(conn))
+        .await?;
+    Ok(person)
+}
+
+pub async fn get_people_by_name(db: &Db, name: String) -> Result<Vec<PersonEntity>> {
+    let person: Vec<PersonEntity> = db
+        .run(move |conn| {
+            people::table
+                .filter(people::firstname.like(format!("%{}%", name)))
+                .load(conn)
+        })
+        .await?;
+    Ok(person)
 }
 
 // select all from people table

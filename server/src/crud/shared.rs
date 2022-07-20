@@ -1,12 +1,10 @@
 use rocket::response::Debug;
-use rocket_sync_db_pools::diesel;
 use rocket::serde::{Deserialize, Serialize};
-use rocket::serde::json::Json;
-
-use crate::models::{PersonEntity, AddressEntity, Person, Address, Email, PhoneNumber};
+use rocket_sync_db_pools::{diesel, database};
 
 #[database("diesel")]
 pub struct Db(diesel::PgConnection);
+
 pub type Result<T, E = Debug<diesel::result::Error>> = std::result::Result<T, E>;
 
 #[derive(Deserialize, Serialize, Clone)]

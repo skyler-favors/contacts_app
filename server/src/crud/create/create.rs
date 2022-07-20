@@ -1,19 +1,10 @@
+use crate::crud::shared::{Contact, Result, Db};
 use rocket::serde::json::Json;
-use rocket::fairing::AdHoc;
-use rocket_sync_db_pools::diesel;
-use diesel::prelude::*;
-use rocket::response::status::Created;
-
 use crate::models::{Person, Address, Email, PhoneNumber};
 use crate::schema::*;
-use crate::helper::shared::{Contact, Result};
-use crate::*;
+use diesel::prelude::*;
 
-#[database("diesel")]
-struct Db(diesel::PgConnection);
-
-#[post("/", data = "<contact>")]
-async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>> {
+pub async fn insert_addresses(db: &Db, contact: &Json<Contact>) -> Result<i32> {
     // create address insert
     let address = Address {
         street: contact.street.clone().to_lowercase(),
@@ -31,6 +22,10 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
             .get_results(conn)
     }).await?;
 
+    Ok(address_id[0])
+}
+
+pub async fn insert_person(db: &Db, contact: &Json<Contact>, address_id: i32) -> Result<i32> {
     // same thing, create person for insert
     let person = Person {
         firstname: contact.firstname.clone().to_lowercase(),
@@ -41,7 +36,7 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
         notes: contact.notes.clone().to_lowercase(),
         favorite: contact.favorite,
         active: contact.active,
-        address_id: address_id[0],
+        address_id,
     };
 
     // insert and return person id
@@ -52,10 +47,14 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
             .get_results(conn)
     }).await?;
 
-    // insert each email in the vec of emails
+    Ok(person_id[0])
+}
+
+pub async fn insert_phone_numbers(db: &Db, contact: &Json<Contact>, person_id: i32) -> Result<()> {
+   // insert each email in the vec of emails
     for e in &contact.emails {
         let email = Email {
-            person_id: person_id[0],
+            person_id,
             email: e.clone().to_lowercase(),
         };
 
@@ -67,10 +66,14 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
         }).await?;
     }
 
+    Ok(())
+}
+
+pub async fn insert_emails(db: &Db, contact: &Json<Contact>, person_id: i32) -> Result<()> {
     // same thing as above but for phone numbers
     for p in &contact.phone_numbers {
         let phone_number = PhoneNumber {
-            person_id: person_id[0],
+            person_id,
             num: p.clone().to_lowercase(),
         };
 
@@ -81,13 +84,5 @@ async fn create(db: Db, contact: Json<Contact>) -> Result<Created<Json<Contact>>
         }).await?;
     }
 
-    Ok(Created::new("/").body(contact))
-}
-
-pub fn stage() -> AdHoc {
-    AdHoc::on_ignite("Diesel Stage", |rocket| async {
-        rocket
-            .attach(Db::fairing())
-            .mount("/", routes![create])
-    })
+    Ok(())
 }

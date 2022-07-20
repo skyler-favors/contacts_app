@@ -2,7 +2,7 @@ use rocket::serde::{Deserialize, Serialize};
 use crate::schema::*;
 
 // PEOPLE TABLE
-#[derive(Insertable, Deserialize, Serialize)]
+#[derive(Insertable, Deserialize, Serialize, AsChangeset)]
 #[table_name = "people"]
 pub struct Person {
     pub firstname: String,
@@ -31,7 +31,7 @@ pub struct PersonEntity {
 }
 
 // ADDRESS TABLE
-#[derive(Insertable)]
+#[derive(Insertable, AsChangeset)]
 #[table_name="addresses"]
 pub struct Address {
     pub street: String,
@@ -52,7 +52,7 @@ pub struct AddressEntity {
 }
 
 // EMAIL TABLE
-#[derive(Insertable)]
+#[derive(Insertable, AsChangeset)]
 #[table_name="emails"]
 pub struct Email {
     pub person_id: i32,
@@ -67,7 +67,7 @@ pub struct EmailEntity {
 }
 
 // PHONE NUMBER TABLE
-#[derive(Insertable)]
+#[derive(Insertable, AsChangeset)]
 #[table_name="phone_numbers"]
 pub struct PhoneNumber {
     pub person_id: i32,

@@ -1,15 +1,11 @@
 use rocket::fairing::AdHoc;
 use rocket::serde::json::Json;
 
-use crate::helper::read::{
-    contact_builder, get_address, get_emails, get_people, get_person, get_phones, QueryValue,
+use super::read::{
+    contact_builder, get_address, get_emails, get_people, get_person_by_id, get_people_by_name, get_phones
 };
-use crate::helper::shared::{Contact, Db, Result};
+use crate::crud::shared::{Contact, Result, Db};
 use crate::models::PersonEntity;
-
-// TODO
-// convert all names to lowercase
-// return ids??
 
 #[get("/read/all")]
 async fn list(db: Db) -> Result<Json<Vec<Contact>>> {
@@ -34,11 +30,11 @@ async fn list(db: Db) -> Result<Json<Vec<Contact>>> {
 #[get("/read/id/<id>")]
 pub async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
     // return the first person with the given id
-    let p: Vec<PersonEntity> = get_person(&db, QueryValue::Id(id)).await?;
-    let address = get_address(&db, p[0].address_id).await?;
-    let phones = get_phones(&db, p[0].person_id).await?;
-    let emails = get_emails(&db, p[0].person_id).await?;
-    let contact = vec![contact_builder(p[0].clone(), address, phones, emails)];
+    let p: PersonEntity = get_person_by_id(&db, id).await?;
+    let address = get_address(&db, p.address_id).await?;
+    let phones = get_phones(&db, p.person_id).await?;
+    let emails = get_emails(&db, p.person_id).await?;
+    let contact = vec![contact_builder(p.clone(), address, phones, emails)];
 
     Ok(Json(contact))
 }
@@ -47,7 +43,7 @@ pub async fn query_by_id(db: Db, id: i32) -> Result<Json<Vec<Contact>>> {
 pub async fn query_by_name(db: Db, name: String) -> Result<Json<Vec<Contact>>> {
     // return first person found with the given name
     // uses LIKE for fuzzy matching
-    let people: Vec<PersonEntity> = get_person(&db, QueryValue::Name(name)).await?;
+    let people: Vec<PersonEntity> = get_people_by_name(&db, name).await?;
 
     let mut contacts: Vec<Contact> = Vec::new();
     for p in people {
@@ -64,7 +60,6 @@ pub async fn query_by_name(db: Db, name: String) -> Result<Json<Vec<Contact>>> {
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Diesel Stage", |rocket| async {
         rocket
-            .attach(Db::fairing())
             .mount("/api", routes![list, query_by_id, query_by_name])
     })
 }
