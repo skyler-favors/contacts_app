@@ -6,11 +6,11 @@ use crate::schema::*;
 #[table_name = "people"]
 pub struct Person {
     pub firstname: String,
-    pub lastname: String,
-    pub nickname: String,
-    pub company: String,
-    pub url: String,
-    pub notes: String,
+    pub lastname: Option<String>,
+    pub nickname: Option<String>,
+    pub company: Option<String>,
+    pub url: Option<String>,
+    pub notes: Option<String>,
     pub favorite: bool,
     pub active: bool,
     pub address_id: i32,
@@ -20,11 +20,11 @@ pub struct Person {
 pub struct PersonEntity {
     pub person_id: i32,
     pub firstname: String,
-    pub lastname: String,
-    pub nickname: String,
-    pub company: String,
-    pub url: String,
-    pub notes: String,
+    pub lastname: Option<String>,
+    pub nickname: Option<String>,
+    pub company: Option<String>,
+    pub url: Option<String>,
+    pub notes: Option<String>,
     pub favorite: bool,
     pub active: bool,
     pub address_id: i32,
@@ -34,21 +34,21 @@ pub struct PersonEntity {
 #[derive(Insertable, AsChangeset)]
 #[table_name="addresses"]
 pub struct Address {
-    pub street: String,
-    pub city: String,
-    pub state: String,
-    pub zip: String,
-    pub country: String,
+    pub street: Option<String>,
+    pub city: Option<String>,
+    pub state: Option<String>,
+    pub zip: Option<String>,
+    pub country: Option<String>,
 }
 
 #[derive(Queryable)]
 pub struct AddressEntity {
     pub address_id: i32,
-    pub street: String,
-    pub city: String,
-    pub state: String,
-    pub zip: String,
-    pub country: String,
+    pub street: Option<String>,
+    pub city: Option<String>,
+    pub state: Option<String>,
+    pub zip: Option<String>,
+    pub country: Option<String>,
 }
 
 // EMAIL TABLE

@@ -63,7 +63,7 @@ pub fn load_local_json(filename: &str) -> Result<Vec<Contact>, serde_json::Error
 }
 
 pub async fn post_request(contacts: Vec<Contact>) -> Result<(), reqwest::Error> {
-    let host = Url::parse("http://127.0.0.1:8000/api/create").unwrap();
+    let host = Url::parse("http://127.0.0.1:8000/api/create/json").unwrap();
     let client = reqwest::Client::new();
 
     for (i, c) in contacts.iter().enumerate() {

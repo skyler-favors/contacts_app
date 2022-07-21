@@ -1,8 +1,7 @@
 use diesel::prelude::*;
-
-use crate::models::{AddressEntity, PersonEntity, PhoneNumberEntity, EmailEntity};
-use crate::schema::*;
 use crate::crud::shared::{Contact, Db, Result};
+use crate::models::{AddressEntity, EmailEntity, PersonEntity, PhoneNumberEntity};
+use crate::schema::*;
 
 // get address info for person
 pub async fn get_address(db: &Db, address_id: i32) -> Result<AddressEntity> {
@@ -77,9 +76,11 @@ pub async fn get_email_ents(db: &Db, person_id: i32) -> Result<Vec<EmailEntity>>
 // select a specific person
 pub async fn get_person_by_id(db: &Db, person_id: i32) -> Result<PersonEntity> {
     let person: PersonEntity = db
-        .run(move |conn| people::table
-            .filter(people::person_id.eq(person_id))
-            .first(conn))
+        .run(move |conn| {
+            people::table
+                .filter(people::person_id.eq(person_id))
+                .first(conn)
+        })
         .await?;
     Ok(person)
 }
@@ -103,6 +104,18 @@ pub async fn get_people(db: &Db) -> Result<Vec<PersonEntity>> {
     Ok(people)
 }
 
+// select all from people table
+pub async fn get_people_in_trash(db: &Db) -> Result<Vec<PersonEntity>> {
+    let person: Vec<PersonEntity> = db
+        .run(move |conn| {
+            people::table
+                .filter(people::active.eq(false))
+                .load(conn)
+        })
+        .await?;
+    Ok(person)
+}
+
 // used to easily build a contact struct
 pub fn contact_builder(
     person: PersonEntity,
@@ -111,6 +124,7 @@ pub fn contact_builder(
     emails: Vec<String>,
 ) -> Contact {
     Contact {
+        id: person.person_id,
         firstname: person.firstname,
         lastname: person.lastname,
         nickname: person.nickname,

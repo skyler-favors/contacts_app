@@ -3,11 +3,13 @@ use yew::prelude::*;
 use yew_hooks::prelude::*;
 use titlecase::titlecase;
 
-use crate::shared::Contact;
+use crate::shared::*;
 
 #[derive(Properties, PartialEq)]
 pub struct CreateContactListProps {
     pub contacts: Vec<Contact>,
+    pub trash: bool,
+    pub state: UseAsyncHandle<Vec<Contact>, Error>,
 }
 
 // creates a list item for each contact in vector
@@ -21,7 +23,7 @@ pub fn create_contact_list(props: &CreateContactListProps) -> Html {
         contacts.iter().map(|contact| {
             html!{
                 <li class={classes!("my-1")}>
-                    <ContactLink contact={contact.clone()} />
+                    <ContactLink trash={props.trash} contact={contact.clone()} state={props.state.clone()} />
                 </li>
             }
         }).collect::<Html>()
@@ -31,6 +33,8 @@ pub fn create_contact_list(props: &CreateContactListProps) -> Html {
 #[derive(Properties, PartialEq)]
 struct ContactLinkProps {
     contact: Contact,
+    trash: bool,
+    state: UseAsyncHandle<Vec<Contact>, Error>,
 }
 
 // make this a struct component so that you can reset the toggle on search
@@ -38,6 +42,11 @@ struct ContactLinkProps {
 #[function_component(ContactLink)]
 fn contact_link(props: &ContactLinkProps) -> Html {
     let contact = &props.contact;
+    let id = contact.id;
+
+    if !contact.active && !props.trash {
+        return html! {}
+    }
 
     let toggle = use_bool_toggle(false);
 
@@ -46,26 +55,101 @@ fn contact_link(props: &ContactLinkProps) -> Html {
         Callback::from(move |_| toggle.toggle())
     };
 
+    let mut lastname = "".to_string();
+    match &contact.lastname {
+        Some(last) => lastname = titlecase(last),
+        None => {},
+    }
+
+    let reload = props.state.clone();
+    let mut state = use_async(async move { 
+        let result = toggle_delete_false(id).await;
+        reload.run();
+        match result {
+            Ok(_x) => Ok(()),
+            Err(e) => Err(e),
+        }
+    });
+
+    let reload = props.state.clone();
+    if props.trash {
+        state = use_async(async move { 
+        let result = toggle_delete_true(id).await; 
+        reload.run();
+        match result {
+            Ok(_x) => Ok(()),
+            Err(e) => Err(e),
+        }
+        });
+    }
+
+    let trash_onclick = {
+        Callback::from(move |_| {
+            state.run();
+        })
+    };
+
     html! {
         <>
-        <button {onclick} class={classes!("text-xl", "font-bold")}>
-            { format!("{} {}",titlecase(&contact.firstname), titlecase(&contact.lastname)) }
-        </button>
+        <div>
+            <button {onclick} class={classes!("text-xl", "font-bold")}>
+                { format!("{} {}",titlecase(&contact.firstname), lastname) }
+            </button>
+
+            <button onclick={trash_onclick} class={classes!("mx-3", "float-right")}>
+                {"Remove"}
+            </button>
+
+            <button class={classes!("mx-3", "float-right")}>
+                {"Favorite"}
+            </button>
+
+            <button class={classes!("mx-3", "float-right")}>
+                {"Edit"}
+            </button>
+        </div>
 
         if *toggle {
             <div class={classes!()}>
                 <ul class={classes!("text-zinc-400")}>
-                    <li>{format!("Nickname: {}", &contact.nickname)}</li>
-                    <li>{format!("Company: {}", &contact.company)}</li>
-                    <li>{format!("Website: {}", &contact.url)}</li>
-                    <li>{format!("Notes: {}", &contact.notes)}</li>
+                    if let Some(nick) = &contact.nickname {
+                        <li>{format!("Nickname: {}", nick)}</li>
+                    }
+
+                    if let Some(company) = &contact.company {
+                        <li>{format!("Company: {}", company)}</li>
+                    }
+
+                    if let Some(url) = &contact.url {
+                        <li>{format!("Website: {}", url)}</li>
+                    }
+
+                    if let Some(notes) = &contact.notes {
+                        <li>{format!("Notes: {}", notes)}</li>
+                    }
+
                     <li>{format!("Favorite: {}", &contact.favorite)}</li>
                     <li>{format!("Active: {}", &contact.active)}</li>
-                    <li>{format!("Street: {}", &contact.street)}</li>
-                    <li>{format!("City: {}", &contact.city)}</li>
-                    <li>{format!("State: {}", &contact.state)}</li>
-                    <li>{format!("Zip-Code: {}", &contact.zip)}</li>
-                    <li>{format!("Country: {}", &contact.country)}</li>
+
+                    if let Some(street) = &contact.street {
+                        <li>{format!("Street: {}", street)}</li>
+                    }
+
+                    if let Some(city) = &contact.city {
+                        <li>{format!("City: {}", city)}</li>
+                    }
+
+                    if let Some(state) = &contact.state {
+                        <li>{format!("State: {}", state)}</li>
+                    }
+
+                    if let Some(zip) = &contact.zip {
+                        <li>{format!("Zip-Code: {}", zip)}</li>
+                    }
+
+                    if let Some(country) = &contact.country {
+                        <li>{format!("Country: {}", country)}</li>
+                    }
                     <li>{format!("Emails: {:?}", contact.emails)}</li>
                     <li>{format!("Phone Numbers: {:?}", contact.phone_numbers)}</li>
                 </ul>

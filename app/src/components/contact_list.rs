@@ -91,7 +91,7 @@ pub fn contact_list() -> Html {
                     html! {
                         <>
                             <ol class={classes!("flex", "justify-center", "flex-col")}>
-                                <CreateContactList contacts={contacts.clone()} />
+                                <CreateContactList contacts={contacts.clone()} trash={false} state={state.clone()} />
                             </ol>
                         </>
                         }

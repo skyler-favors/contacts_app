@@ -2,9 +2,10 @@ use rocket::fairing::AdHoc;
 use rocket::serde::json::Json;
 
 use super::read::{
-    contact_builder, get_address, get_emails, get_people, get_person_by_id, get_people_by_name, get_phones
+    contact_builder, get_address, get_emails, get_people, get_people_by_name, get_person_by_id,
+    get_phones, get_people_in_trash,
 };
-use crate::crud::shared::{Contact, Result, Db};
+use crate::crud::shared::{Contact, Db, Result};
 use crate::models::PersonEntity;
 
 #[get("/read/all")]
@@ -20,6 +21,7 @@ async fn list(db: Db) -> Result<Json<Vec<Contact>>> {
         let address = get_address(&db, p.address_id).await?;
         let phones = get_phones(&db, p.person_id).await?;
         let emails = get_emails(&db, p.person_id).await?;
+
         let contact = contact_builder(p, address, phones, emails);
         contacts.push(contact);
     }
@@ -57,9 +59,31 @@ pub async fn query_by_name(db: Db, name: String) -> Result<Json<Vec<Contact>>> {
     Ok(Json(contacts))
 }
 
+#[get("/read/trash")]
+async fn query_trash(db: Db) -> Result<Json<Vec<Contact>>> {
+    // select all from people table
+    let people: Vec<PersonEntity> = get_people_in_trash(&db).await?;
+
+    // build a list of contacts
+    let mut contacts: Vec<Contact> = Vec::new();
+
+    // build contacts
+    for p in people {
+        let address = get_address(&db, p.address_id).await?;
+        let phones = get_phones(&db, p.person_id).await?;
+        let emails = get_emails(&db, p.person_id).await?;
+
+        let contact = contact_builder(p, address, phones, emails);
+        contacts.push(contact);
+    }
+
+    Ok(Json(contacts))
+
+}
+
+
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Diesel Stage", |rocket| async {
-        rocket
-            .mount("/api", routes![list, query_by_id, query_by_name])
+        rocket.mount("/api", routes![list, query_by_id, query_by_name, query_trash])
     })
 }

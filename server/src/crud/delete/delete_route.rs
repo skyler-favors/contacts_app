@@ -19,26 +19,24 @@ async fn delete_by_name(db: Db, name: String) -> Result<()> {
     Ok(())
 }
 */
-#[get("/deactivate/id/<id>")]
-async fn deactivate_by_id(db: Db, id: i32) -> Result<()> {
+#[get("/toggle/true/id/<id>")]
+async fn toggle_true_by_id(db: Db, id: i32) -> Result<()> {
     use crate::schema::people::dsl::*;
-
     let _result: PersonEntity = db.run(move |conn| {
         diesel::update(people.find(id))
-            .set(active.eq(false))
-.get_result(conn)
+            .set(active.eq(true))
+            .get_result(conn)
     }).await?;
 
     Ok(())
 }
 
-#[get("/activate/id/<id>")]
-async fn activate_by_id(db: Db, id: i32) -> Result<()> {
+#[get("/toggle/false/id/<id>")]
+async fn toggle_false_by_id(db: Db, id: i32) -> Result<()> {
     use crate::schema::people::dsl::*;
-
     let _result: PersonEntity = db.run(move |conn| {
         diesel::update(people.find(id))
-            .set(active.eq(true))
+            .set(active.eq(false))
             .get_result(conn)
     }).await?;
 
@@ -54,6 +52,6 @@ async fn deactivate_by_name(db: Db, name: String) -> Result<()> {
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Diesel Stage", |rocket| async {
         rocket
-            .mount("/api", routes![delete_by_id, deactivate_by_id, activate_by_id])
+            .mount("/api", routes![delete_by_id, toggle_true_by_id, toggle_false_by_id])
     })
 }

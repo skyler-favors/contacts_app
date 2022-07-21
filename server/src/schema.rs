@@ -1,11 +1,11 @@
 table! {
     addresses (address_id) {
         address_id -> Int4,
-        street -> Text,
-        city -> Text,
-        state -> Text,
-        zip -> Text,
-        country -> Text,
+        street -> Nullable<Text>,
+        city -> Nullable<Text>,
+        state -> Nullable<Text>,
+        zip -> Nullable<Text>,
+        country -> Nullable<Text>,
     }
 }
 
@@ -21,11 +21,11 @@ table! {
     people (person_id) {
         person_id -> Int4,
         firstname -> Text,
-        lastname -> Text,
-        nickname -> Text,
-        company -> Text,
-        url -> Text,
-        notes -> Text,
+        lastname -> Nullable<Text>,
+        nickname -> Nullable<Text>,
+        company -> Nullable<Text>,
+        url -> Nullable<Text>,
+        notes -> Nullable<Text>,
         favorite -> Bool,
         active -> Bool,
         address_id -> Int4,

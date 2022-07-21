@@ -4,23 +4,21 @@ CREATE TABLE people (
   PRIMARY KEY(person_id),
 
   firstname TEXT NOT NULl,
-  lastname TEXT NOT NULl,
+  lastname TEXT,
 
-  -- change these back to nullable
-  nickname TEXT NOT NULl,
-  company TEXT NOT NULl,
-  url TEXT NOT NULl,
-  notes TEXT NOT NULl,
-  --
+  nickname TEXT,
+  company TEXT,
+  url TEXT,
+  notes TEXT,
+
   favorite BOOLEAN NOT NULL,
   active BOOLEAN NOT NULL,
 
-  --
   address_id INT NOT NULL,
-  --
 
   CONSTRAINT fk_address FOREIGN KEY(address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
+
 INSERT INTO 
-  people(firstname,lastname,nickname,company,url,notes,favorite,active,address_id) 
-  VALUES('skyler','favors','sky','MSCA','skylerfavors.com','God tier league player',true,true,1);
+  people(firstname,lastname,nickname,company,url,favorite,active,address_id) 
+  VALUES('skyler','favors','sky','MSCA','skylerfavors.com',true,true,1);
