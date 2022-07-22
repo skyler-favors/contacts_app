@@ -26,8 +26,8 @@ where
     }
 }
 
-pub async fn toggle_delete_true(id: i32) -> Result<(), Error> {
-    let body = reqwest::get(format!("http://localhost:8000/api/toggle/true/id/{}", id))
+pub async fn toggle_trash(id: i32) -> Result<(), Error> {
+    let body = reqwest::get(format!("http://localhost:8000/api/toggle/trash/id/{}", id))
         .await;
     match body {
         Ok(_x) => {
@@ -39,8 +39,8 @@ pub async fn toggle_delete_true(id: i32) -> Result<(), Error> {
     }
 }
 
-pub async fn toggle_delete_false(id: i32) -> Result<(), Error> {
-    let body = reqwest::get(format!("http://localhost:8000/api/toggle/false/id/{}", id))
+pub async fn delete_by_id(id: i32) -> Result<(), Error> {
+    let body = reqwest::get(format!("http://localhost:8000/api/delete/id/{}", id))
         .await;
     match body {
         Ok(_x) => {
@@ -52,18 +52,39 @@ pub async fn toggle_delete_false(id: i32) -> Result<(), Error> {
     }
 }
 
-// used for post requests
-/* pub async fn post(url: String, contact: Contact) -> Result<(), reqwest::Error> {
-    let host = Url::parse(&url).unwrap();
-    let client = reqwest::Client::new();
-    client
-        .post(host)
-        .json(&contact)
-        .send()
-        .await?;
+pub async fn delete_all() -> Result<(), Error> {
+    let body = reqwest::get(format!("http://localhost:8000/api/delete/all"))
+        .await;
+    match body {
+        Ok(_x) => {
+            Ok(())
+        },
+        Err(_e) => {
+            Err(Error::RequestError)
+        }
+    }
+}
 
-    Ok(())
-} */
+pub async fn toggle_fav(id: i32) -> Result<(), Error> {
+    let body = reqwest::get(format!("http://localhost:8000/api/toggle/fav/id/{}", id))
+        .await;
+    match body {
+        Ok(_x) => {
+            Ok(())
+        },
+        Err(_e) => {
+            Err(Error::RequestError)
+        }
+    }
+}
+
+pub async fn fetch_all() -> Result<Vec<Contact>, Error> {
+    fetch::<Vec<Contact>>("http://localhost:8000/api/read/all".into()).await
+}
+
+pub async fn fetch_contact(name: String) -> Result<Vec<Contact>, Error> {
+    fetch::<Vec<Contact>>(format!("http://localhost:8000/api/read/name/{}", name)).await
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Contact {

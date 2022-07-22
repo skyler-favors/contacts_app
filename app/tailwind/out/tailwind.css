@@ -611,13 +611,9 @@ ul > li {
   float: right;
 }
 
-.m-10 {
-  margin: 2.5rem;
-}
-
-.my-1 {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
+.my-5 {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .mx-3 {
@@ -625,8 +621,20 @@ ul > li {
   margin-right: 0.75rem;
 }
 
-.my-5 {
-  margin-top: 1.25rem;
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.mb-5 {
   margin-bottom: 1.25rem;
 }
 
@@ -646,8 +654,24 @@ ul > li {
   height: 100%;
 }
 
+.w-1\/2 {
+  width: 50%;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
 .flex-col {
   flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
 }
 
 .justify-center {
@@ -656,6 +680,10 @@ ul > li {
 
 .border-2 {
   border-width: 2px;
+}
+
+.border-b-2 {
+  border-bottom-width: 2px;
 }
 
 .border-solid {

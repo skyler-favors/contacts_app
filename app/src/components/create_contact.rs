@@ -1,5 +1,6 @@
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use yew_octicons::{Icon, IconKind};
 
 #[function_component(CreateContact)]
 pub fn create_contact() -> Html {
@@ -11,22 +12,25 @@ pub fn create_contact() -> Html {
     };
 
     html! {
-        <>
-            <button {onclick} class={classes!("my-5", "border-solid", "border-2")}>
-                {"Create New Contact"}
+        <div class={classes!("border-solid", "border-b-2", "items-center", "flex", "flex-col")}>
+            <button {onclick} class={classes!("my-5", "border-solid", "border-2", "w-1/2")}>
+                <div class={classes!("flex", "flex-row", "justify-center")}>
+                    <i class={classes!("mx-3", "mt-1")}>
+                        { Icon::new(IconKind::PlusCircle) }</i>
+                    {"Create New Contact"}
+                </div>
             </button>
             if *toggle {
                 <CreateContactForm />
             }
-        </>
+        </div>
     }
 }
-
 
 #[function_component(CreateContactForm)]
 fn create_contact_form() -> Html {
     html! {
-        <form action="/api/create/form" method="post" class={classes!("flex", "flex-col")}>
+        <form action="/api/create/form" method="post" class={classes!("flex", "flex-col", "w-1/2")}>
             <label for="firstname">{"First name:"}</label>
             <input type="text" id="firstname" name="firstname" />
 

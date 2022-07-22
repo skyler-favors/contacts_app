@@ -15,10 +15,9 @@
 - Tauri: creates a desktop application from a webpage.
 
 ## TODO
-1. Add update and delete features
-2. Add nullables, easy just add options to struct
-3. Style
-4. implement Tauri framework
-5. implement favorites
-6. implement active, instead of deleting from db, just set contact as inactive
-7. Auto fetch contacts when page first loads
+- Perma delete
+- Add image support
+- combine search bars into one
+- auto refresh
+- implement Tauri frameworks
+- Auto fetch contacts when page first loads

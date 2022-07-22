@@ -52,7 +52,7 @@ pub struct AddressEntity {
 }
 
 // EMAIL TABLE
-#[derive(Insertable, AsChangeset)]
+#[derive(Insertable, Deserialize, Serialize, AsChangeset, Clone)]
 #[table_name="emails"]
 pub struct Email {
     pub person_id: i32,

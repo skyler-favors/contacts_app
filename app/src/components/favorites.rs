@@ -1,14 +1,15 @@
-use web_sys::HtmlInputElement;
 use yew::prelude::*;
+use web_sys::HtmlInputElement;
 use yew_hooks::prelude::*;
 use yew_octicons::{Icon, IconKind};
 
 use crate::components::*;
 use crate::shared::*;
 
-#[function_component(Trashcan)]
-pub fn trash() -> Html {
+#[function_component(Favorites)]
+pub fn favorites() -> Html {
     let search_value: UseStateHandle<Option<String>> = use_state(|| None);
+    let toggle = use_bool_toggle(false);
 
     // calls the correct fetch request based on the input value
     let search_value_state = search_value.clone();
@@ -19,8 +20,6 @@ pub fn trash() -> Html {
             None => fetch_all().await,
         }
     });
-
-    let toggle = use_bool_toggle(false);
 
     let toggle_onclick = {
         let toggle = toggle.clone();
@@ -67,33 +66,18 @@ pub fn trash() -> Html {
         })
     };
 
-    let full_delete_state = use_async(async move {
-        let result = delete_all().await;
-        match result {
-            Ok(_x) => Ok(()),
-            Err(e) => Err(e),
-        }
-    });
-
-    let full_delete_onclick = {
-        Callback::from(move |_| {
-            full_delete_state.run();
-        })
-    };
-
     html! {
         <div class={classes!("border-solid", "border-b-2", "flex", "flex-col", "items-center")}>
             <button onclick={toggle_onclick} class={classes!("my-5", "border-solid", "border-2", "flex-1", "w-1/2")}>
                 <div class={classes!("flex", "flex-row", "justify-center")}>
                     <i class={classes!("mx-3", "mt-1")}>
-                        { Icon::new(IconKind::Trash) }</i>
-                    {"Open Trash"}
+                        { Icon::new(IconKind::HeartFill) }</i>
+                    {"Open Favorites"}
                 </div>
             </button>
 
             if *toggle {
             <div class={classes!("flex", "justify-center", "flex-col")}>
-
                 <div class={classes!("flex", "flex-row", "justify-center")}>
                     <i>{ Icon::new_big(IconKind::Search) }</i>
                     <input {oninput} {onkeypress} type="search"
@@ -104,18 +88,9 @@ pub fn trash() -> Html {
                     <div class={classes!("flex", "flex-row", "justify-center")}>
                         <i class={classes!("mx-3", "mt-1")}>
                             { Icon::new(IconKind::Sync) }</i>
-                        {"Refresh Trash"}
+                            {"Refresh Favorites"}
                     </div>
                 </button>
-
-                <button onclick={full_delete_onclick} class={classes!("mb-5", "border-solid", "border-2", "flex-1")}>
-                    <div class={classes!("flex", "flex-row", "justify-center")}>
-                        <i class={classes!("mx-3", "mt-1")}>
-                            { Icon::new(IconKind::Trash) }</i>
-                        {"Empty Trash"}
-                    </div>
-                </button>
-
             </div>
 
             <div id="contact_list_container"
@@ -125,7 +100,7 @@ pub fn trash() -> Html {
                     html! {
                         <>
                             <ol class={classes!("flex", "justify-center", "flex-col")}>
-                                <CreateContactList contacts={contacts.clone()} list_type={ContactListType::Trash} state={state.clone()} />
+                                <CreateContactList contacts={contacts.clone()} list_type={ContactListType::Favorites} state={state.clone()} />
                             </ol>
                         </>
                         }

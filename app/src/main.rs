@@ -10,8 +10,9 @@ pub fn app() -> Html {
     html! {
         <main class={classes!("flex", "justify-center", "h-full", "flex-col")}>
             <h1 class={classes!("flex", "justify-center", "text-2xl")}>{ "Contacts!" }</h1>
-            <Trashcan />
             <CreateContact />
+            <Trashcan />
+            <Favorites />
             <ContactList />
         </main>
     }

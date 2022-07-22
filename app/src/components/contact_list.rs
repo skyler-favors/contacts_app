@@ -1,23 +1,17 @@
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_hooks::prelude::*;
+use yew_octicons::{Icon, IconKind};
 
 use crate::components::*;
 use crate::shared::*;
-
-async fn fetch_contacts() -> Result<Vec<Contact>, Error> {
-    fetch::<Vec<Contact>>("http://localhost:8000/api/read/all".into()).await
-}
-
-async fn fetch_contact(name: String) -> Result<Vec<Contact>, Error> {
-    fetch::<Vec<Contact>>(format!("http://localhost:8000/api/read/name/{}", name)).await
-}
 
 // the list container that holds contact components
 #[function_component(ContactList)]
 pub fn contact_list() -> Html {
     // holds the value thats typed into the input
     let search_value: UseStateHandle<Option<String>> = use_state(|| None);
+    let toggle = use_bool_toggle(false);
 
     // calls the correct fetch request based on the input value
     let search_value_state = search_value.clone();
@@ -25,9 +19,22 @@ pub fn contact_list() -> Html {
         let search_value = search_value_state;
         match &*search_value {
             Some(v) => fetch_contact(v.into()).await,
-            None => fetch_contacts().await,
+            None => fetch_all().await,
         }
     });
+
+    let toggle_onclick = {
+        let toggle = toggle.clone();
+        let search_value = search_value.clone();
+        let state = state.clone();
+        Callback::from(move |_| {
+            toggle.toggle();
+            search_value.set(None);
+            if !*toggle {
+                state.run();
+            }
+        })
+    };
 
     // saves the input value
     let oninput = {
@@ -44,7 +51,7 @@ pub fn contact_list() -> Html {
 
     // runs query on button press
     let state_onclick = state.clone();
-    let onclick = {
+    let refresh_onclick = {
         Callback::from(move |_| {
             // You can manually trigger to run in callback or use_effect.
             state_onclick.run();
@@ -62,26 +69,31 @@ pub fn contact_list() -> Html {
     };
 
     html! {
-        <>
-            <div id="input_container" class={classes!("flex", "justify-center", "flex-col")}>
-                <input {oninput} {onkeypress} type="search"
-                    class={classes!("border-solid", "border-2", "m-10", "bg-zinc-700", "text-zinc-200")}/>
-                <button {onclick} disabled={state.loading} class={classes!("border-solid", "border-2")}>
-                    { "Load Contacts" }
-                </button>
-            </div>
+        <div class={classes!("items-center", "flex", "flex-col")}>
+            <button onclick={toggle_onclick} disabled={state.loading} class={classes!("border-solid", "border-2", "my-5", "w-1/2")}>
+                <div class={classes!("flex", "flex-row", "justify-center")}>
+                    <i class={classes!("mx-3", "mt-1")}>
+                        { Icon::new(IconKind::People) }</i>
+                    { "Open Contacts" }
+                </div>
+            </button>
 
-            <div id="state_loading_container"
-                class={classes!("flex", "justify-center", "flex-col")}>
-                <p class={classes!("flex", "justify-center", "flex-col")}>
-                    {
-                        if state.loading {
-                            html! { "Loading, wait a sec..." }
-                        } else {
-                            html! {}
-                        }
-                    }
-                </p>
+            if *toggle {
+            <div id="input_container" class={classes!("flex", "justify-center", "flex-col")}>
+                <div class={classes!("flex", "flex-row", "justify-center")}>
+                    <i>{ Icon::new_big(IconKind::Search) }</i>
+                    <input {oninput} {onkeypress} type="search"
+                        class={classes!("ml-2", "border-solid", "border-2", "bg-zinc-700", "text-zinc-200", "mb-5")}/>
+                </div>
+
+                <button onclick={refresh_onclick} disabled={state.loading} class={classes!("border-solid", "border-2", "mb-5")}>
+                    <div class={classes!("flex", "flex-row", "justify-center")}>
+                        <i class={classes!("mx-3", "mt-1")}>
+                            { Icon::new(IconKind::Sync) }</i>
+                        { "Refresh Contacts" }
+                    </div>
+                </button>
+
             </div>
 
             <div id="contact_list_container"
@@ -91,7 +103,7 @@ pub fn contact_list() -> Html {
                     html! {
                         <>
                             <ol class={classes!("flex", "justify-center", "flex-col")}>
-                                <CreateContactList contacts={contacts.clone()} trash={false} state={state.clone()} />
+                                <CreateContactList contacts={contacts.clone()} list_type={ContactListType::Normal} state={state.clone()} />
                             </ol>
                         </>
                         }
@@ -113,6 +125,7 @@ pub fn contact_list() -> Html {
                     }
                 </p>
             </div>
-        </>
+        }
+        </div>
     }
 }
