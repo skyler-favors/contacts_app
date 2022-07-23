@@ -27,54 +27,40 @@ where
 }
 
 pub async fn toggle_trash(id: i32) -> Result<(), Error> {
-    let body = reqwest::get(format!("http://localhost:8000/api/toggle/trash/id/{}", id))
-        .await;
+    let body = reqwest::get(format!("http://localhost:8000/api/toggle/trash/id/{}", id)).await;
     match body {
-        Ok(_x) => {
-            Ok(())
-        },
-        Err(_e) => {
-            Err(Error::RequestError)
-        }
+        Ok(_x) => Ok(()),
+        Err(_e) => Err(Error::RequestError),
     }
 }
 
-pub async fn delete_by_id(id: i32) -> Result<(), Error> {
-    let body = reqwest::get(format!("http://localhost:8000/api/delete/id/{}", id))
-        .await;
-    match body {
-        Ok(_x) => {
-            Ok(())
-        },
-        Err(_e) => {
-            Err(Error::RequestError)
-        }
-    }
-}
+// Not being used
+// pub async fn delete_by_id(id: i32) -> Result<(), Error> {
+//     let body = reqwest::get(format!("http://localhost:8000/api/delete/id/{}", id))
+//         .await;
+//     match body {
+//         Ok(_x) => {
+//             Ok(())
+//         },
+//         Err(_e) => {
+//             Err(Error::RequestError)
+//         }
+//     }
+// }
 
 pub async fn delete_all() -> Result<(), Error> {
-    let body = reqwest::get(format!("http://localhost:8000/api/delete/all"))
-        .await;
+    let body = reqwest::get("http://localhost:8000/api/delete/all".to_string()).await;
     match body {
-        Ok(_x) => {
-            Ok(())
-        },
-        Err(_e) => {
-            Err(Error::RequestError)
-        }
+        Ok(_x) => Ok(()),
+        Err(_e) => Err(Error::RequestError),
     }
 }
 
 pub async fn toggle_fav(id: i32) -> Result<(), Error> {
-    let body = reqwest::get(format!("http://localhost:8000/api/toggle/fav/id/{}", id))
-        .await;
+    let body = reqwest::get(format!("http://localhost:8000/api/toggle/fav/id/{}", id)).await;
     match body {
-        Ok(_x) => {
-            Ok(())
-        },
-        Err(_e) => {
-            Err(Error::RequestError)
-        }
+        Ok(_x) => Ok(()),
+        Err(_e) => Err(Error::RequestError),
     }
 }
 
@@ -112,4 +98,3 @@ pub struct Contact {
     // phone number table
     pub phone_numbers: Vec<String>,
 }
-

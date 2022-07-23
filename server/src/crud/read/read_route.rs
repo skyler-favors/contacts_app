@@ -1,9 +1,9 @@
 use rocket::fairing::AdHoc;
 use rocket::serde::json::Json;
 
-use super::read::{
-    contact_builder, get_address, get_emails, get_people, get_people_by_name, get_person_by_id,
-    get_phones, get_people_in_trash,
+use super::read_helper::{
+    contact_builder, get_address, get_emails, get_people, get_people_by_name, get_people_in_trash,
+    get_person_by_id, get_phones,
 };
 use crate::crud::shared::{Contact, Db, Result};
 use crate::models::PersonEntity;
@@ -78,12 +78,13 @@ async fn query_trash(db: Db) -> Result<Json<Vec<Contact>>> {
     }
 
     Ok(Json(contacts))
-
 }
-
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Diesel Stage", |rocket| async {
-        rocket.mount("/api", routes![list, query_by_id, query_by_name, query_trash])
+        rocket.mount(
+            "/api",
+            routes![list, query_by_id, query_by_name, query_trash],
+        )
     })
 }

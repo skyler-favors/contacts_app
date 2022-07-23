@@ -1,5 +1,5 @@
-use yew::prelude::*;
 use crate::components::*;
+use yew::prelude::*;
 
 mod components;
 mod shared;

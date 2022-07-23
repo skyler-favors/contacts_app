@@ -53,7 +53,6 @@ fn contact_link(props: &ContactLinkProps) -> Html {
 
     let mut heart_icon = Icon::new_big(IconKind::Heart);
     let mut trash_icon = Icon::new_big(IconKind::Trash);
-    let mut toggle_full_delete = false;
     match props.list_type {
         ContactListType::Normal => {
             if !contact.active {
@@ -67,7 +66,6 @@ fn contact_link(props: &ContactLinkProps) -> Html {
             if contact.active {
                 return html! {};
             }
-            toggle_full_delete = true;
             trash_icon = Icon::new_big(IconKind::Upload);
             if contact.favorite {
                 heart_icon = Icon::new_big(IconKind::HeartFill);
@@ -105,7 +103,7 @@ fn contact_link(props: &ContactLinkProps) -> Html {
     }
 
     let reload = props.state.clone();
-    let mut trash_state = use_async(async move {
+    let trash_state = use_async(async move {
         let result = toggle_trash(id).await;
         reload.run();
         match result {
@@ -163,48 +161,91 @@ fn contact_link(props: &ContactLinkProps) -> Html {
         }
 
         if *toggle_list {
-            <div class={classes!()}>
+            <div class={classes!("border-solid", "border-y-2")}>
                 <ul class={classes!("text-zinc-400")}>
                     if let Some(nick) = &contact.nickname {
-                        <li>{format!("Nickname: {}", nick)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Nickname: "}</b>
+                            <p>{nick}</p>
+                        </li>
                     }
 
                     if let Some(company) = &contact.company {
-                        <li>{format!("Company: {}", company)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Company: "}</b>
+                            <p>{company}</p>
+                        </li>
                     }
 
                     if let Some(url) = &contact.url {
-                        <li>{format!("Website: {}", url)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Website: "}</b>
+                            <p>{url}</p>
+                        </li>
                     }
 
                     if let Some(notes) = &contact.notes {
-                        <li>{format!("Notes: {}", notes)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Notes: "}</b>
+                            <p>{notes}</p>
+                        </li>
                     }
 
-                    <li>{format!("Favorite: {}", &contact.favorite)}</li>
-                    <li>{format!("Active: {}", &contact.active)}</li>
+                    <li class={classes!("flex", "flex-row")}>
+                        <b class={classes!("mr-5")}>{"Favorite: "}</b>
+                        <p>{&contact.favorite}</p>
+                    </li>
+
+                    <li class={classes!("flex", "flex-row")}>
+                        <b class={classes!("mr-5")}>{"Active: "}</b>
+                        <p>{&contact.active}</p>
+                    </li>
 
                     if let Some(street) = &contact.street {
-                        <li>{format!("Street: {}", street)}</li>
+                         <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Street: "}</b>
+                            <p>{street}</p>
+                        </li>
                     }
 
                     if let Some(city) = &contact.city {
-                        <li>{format!("City: {}", city)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"City: "}</b>
+                            <p>{city}</p>
+                        </li>
                     }
 
                     if let Some(state) = &contact.state {
-                        <li>{format!("State: {}", state)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"State: "}</b>
+                            <p>{state}</p>
+                        </li>
                     }
 
                     if let Some(zip) = &contact.zip {
-                        <li>{format!("Zip-Code: {}", zip)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Zip-Code: "}</b>
+                            <p>{zip}</p>
+                        </li>
                     }
 
                     if let Some(country) = &contact.country {
-                        <li>{format!("Country: {}", country)}</li>
+                        <li class={classes!("flex", "flex-row")}>
+                            <b class={classes!("mr-5")}>{"Country: "}</b>
+                            <p>{country}</p>
+                        </li>
                     }
-                    <li>{format!("Emails: {:?}", contact.emails)}</li>
-                    <li>{format!("Phone Numbers: {:?}", contact.phone_numbers)}</li>
+                    <li class={classes!("flex", "flex-row")}>
+                        <b class={classes!("mr-5")}>{"Emails: "}</b>
+                        <p>{format!("{:?}", contact.emails)}</p>
+                    </li>
+
+                    <li class={classes!("flex", "flex-row")}>
+                        <b class={classes!("mr-5")}>{"Phone Numbers: "}</b>
+                        <p>{format!("{:?}", contact.phone_numbers)}</p>
+                    </li>
+
+
                 </ul>
             </div>
         }

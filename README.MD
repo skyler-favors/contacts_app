@@ -15,7 +15,8 @@
 - Tauri: creates a desktop application from a webpage.
 
 ## TODO
-- Perma delete
+- fix email and phone number edit
+- clean up emails and phone numbers
 - Add image support
 - combine search bars into one
 - auto refresh

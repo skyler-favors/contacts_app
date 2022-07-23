@@ -1,26 +1,32 @@
 use crate::crud::shared::{ContactForm, Db};
-use crate::models::{Person, Address, Email, PhoneNumber};
-use diesel::prelude::*;
+use crate::models::{Address, Email, Person, PhoneNumber};
 use crate::schema::*;
+use diesel::prelude::*;
+use diesel::result::Error;
 
 pub fn update_person(new_contact: &ContactForm, address_id: i32) -> Person {
     Person {
         firstname: new_contact.firstname.clone().to_lowercase(),
         lastname: {
-            new_contact.lastname.as_ref().map(|x| x.clone().to_lowercase())
-        }, 
+            new_contact
+                .lastname
+                .as_ref()
+                .map(|x| x.clone().to_lowercase())
+        },
         nickname: {
-            new_contact.nickname.as_ref().map(|x| x.clone().to_lowercase())
-        },  
+            new_contact
+                .nickname
+                .as_ref()
+                .map(|x| x.clone().to_lowercase())
+        },
         company: {
-            new_contact.company.as_ref().map(|x| x.clone().to_lowercase())
-        },  
-        url: {
-            new_contact.url.as_ref().map(|x| x.clone().to_lowercase())
-        },  
-        notes: {
-            new_contact.notes.as_ref().map(|x| x.clone().to_lowercase())
-        },  
+            new_contact
+                .company
+                .as_ref()
+                .map(|x| x.clone().to_lowercase())
+        },
+        url: { new_contact.url.as_ref().map(|x| x.clone().to_lowercase()) },
+        notes: { new_contact.notes.as_ref().map(|x| x.clone().to_lowercase()) },
         favorite: new_contact.favorite,
         active: new_contact.active,
         address_id,
@@ -30,24 +36,29 @@ pub fn update_person(new_contact: &ContactForm, address_id: i32) -> Person {
 pub fn update_address(new_contact: &ContactForm) -> Address {
     Address {
         street: {
-            new_contact.street.as_ref().map(|x| x.clone().to_lowercase())
-        }, 
-        city: {
-            new_contact.city.as_ref().map(|x| x.clone().to_lowercase())
-        }, 
-        state: {
-            new_contact.state.as_ref().map(|x| x.clone().to_lowercase())
-        }, 
-        zip: {
-            new_contact.zip.as_ref().map(|x| x.clone().to_lowercase())
-        }, 
+            new_contact
+                .street
+                .as_ref()
+                .map(|x| x.clone().to_lowercase())
+        },
+        city: { new_contact.city.as_ref().map(|x| x.clone().to_lowercase()) },
+        state: { new_contact.state.as_ref().map(|x| x.clone().to_lowercase()) },
+        zip: { new_contact.zip.as_ref().map(|x| x.clone().to_lowercase()) },
         country: {
-            new_contact.country.as_ref().map(|x| x.clone().to_lowercase())
-        }, 
+            new_contact
+                .country
+                .as_ref()
+                .map(|x| x.clone().to_lowercase())
+        },
     }
 }
 
-pub async fn update_emails(db: &Db, mut new_emails: Vec<String>, old_emails: &Vec<String>, id: i32) -> Result<(), ()> {
+pub async fn update_emails(
+    db: &Db,
+    mut new_emails: Vec<String>,
+    old_emails: &[String],
+    id: i32,
+) -> Result<(), Error> {
     old_emails.iter().for_each(|item| {
         if !new_emails.contains(item) {
             new_emails.push(item.clone());
@@ -69,7 +80,8 @@ pub async fn update_emails(db: &Db, mut new_emails: Vec<String>, old_emails: &Ve
         diesel::delete(emails::table)
             .filter(emails::person_id.eq(id))
             .execute(conn)
-    }).await;
+    })
+    .await?;
 
     for email_ent in result {
         let _email_result = db
@@ -78,13 +90,18 @@ pub async fn update_emails(db: &Db, mut new_emails: Vec<String>, old_emails: &Ve
                     .values(email_ent)
                     .execute(conn)
             })
-            .await;
+            .await?;
     }
 
     Ok(())
 }
 
-pub async fn update_phones(db: &Db, mut new_phones: Vec<String>, old_phones: &Vec<String>, id: i32) -> Result<(), ()> {
+pub async fn update_phones(
+    db: &Db,
+    mut new_phones: Vec<String>,
+    old_phones: &[String],
+    id: i32,
+) -> Result<(), Error> {
     old_phones.iter().for_each(|item| {
         if !new_phones.contains(item) {
             new_phones.push(item.clone());
@@ -104,7 +121,8 @@ pub async fn update_phones(db: &Db, mut new_phones: Vec<String>, old_phones: &Ve
         diesel::delete(phone_numbers::table)
             .filter(phone_numbers::person_id.eq(id))
             .execute(conn)
-    }).await;
+    })
+    .await?;
 
     for phone_ent in result {
         let _phone_result = db
@@ -113,7 +131,7 @@ pub async fn update_phones(db: &Db, mut new_phones: Vec<String>, old_phones: &Ve
                     .values(phone_ent)
                     .execute(conn)
             })
-            .await;    
+            .await?;
     }
 
     Ok(())

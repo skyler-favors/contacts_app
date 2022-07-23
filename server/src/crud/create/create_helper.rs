@@ -10,7 +10,7 @@ pub async fn insert_addresses(db: &Db, contact: &ContactForm) -> Result<i32> {
         street: {
             match &contact.street {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -22,7 +22,7 @@ pub async fn insert_addresses(db: &Db, contact: &ContactForm) -> Result<i32> {
         city: {
             match &contact.city {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -34,7 +34,7 @@ pub async fn insert_addresses(db: &Db, contact: &ContactForm) -> Result<i32> {
         state: {
             match &contact.state {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -46,7 +46,7 @@ pub async fn insert_addresses(db: &Db, contact: &ContactForm) -> Result<i32> {
         zip: {
             match &contact.zip {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -58,7 +58,7 @@ pub async fn insert_addresses(db: &Db, contact: &ContactForm) -> Result<i32> {
         country: {
             match &contact.country {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -89,7 +89,7 @@ pub async fn insert_person(db: &Db, contact: &ContactForm, address_id: i32) -> R
         lastname: {
             match &contact.lastname {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -101,7 +101,7 @@ pub async fn insert_person(db: &Db, contact: &ContactForm, address_id: i32) -> R
         nickname: {
             match &contact.nickname {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -113,7 +113,7 @@ pub async fn insert_person(db: &Db, contact: &ContactForm, address_id: i32) -> R
         company: {
             match &contact.company {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -125,7 +125,7 @@ pub async fn insert_person(db: &Db, contact: &ContactForm, address_id: i32) -> R
         url: {
             match &contact.url {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
@@ -137,7 +137,7 @@ pub async fn insert_person(db: &Db, contact: &ContactForm, address_id: i32) -> R
         notes: {
             match &contact.notes {
                 Some(x) => {
-                    if x == "" {
+                    if x.is_empty() {
                         None
                     } else {
                         Some(x.clone().to_lowercase())
