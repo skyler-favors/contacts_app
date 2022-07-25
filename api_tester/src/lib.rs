@@ -79,7 +79,7 @@ pub async fn post_request(contacts: Vec<Contact>) -> Result<(), reqwest::Error> 
 }
 
 pub async fn update_request(new_data: Contact) -> Result<(), reqwest::Error> {
-    let host = Url::parse("http://127.0.0.1:8000/api/update/id/1").unwrap();
+    let host = Url::parse("http://127.0.0.1:8000/api/update/json/id/1").unwrap();
     let client = reqwest::Client::new();
 
     client

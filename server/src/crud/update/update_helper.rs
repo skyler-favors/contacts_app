@@ -55,16 +55,9 @@ pub fn update_address(new_contact: &ContactForm) -> Address {
 
 pub async fn update_emails(
     db: &Db,
-    mut new_emails: Vec<String>,
-    old_emails: &[String],
+    new_emails: Vec<String>,
     id: i32,
 ) -> Result<(), Error> {
-    old_emails.iter().for_each(|item| {
-        if !new_emails.contains(item) {
-            new_emails.push(item.clone());
-        }
-    });
-
     let mut result: Vec<Email> = Vec::new();
 
     for e in new_emails {
@@ -98,16 +91,10 @@ pub async fn update_emails(
 
 pub async fn update_phones(
     db: &Db,
-    mut new_phones: Vec<String>,
-    old_phones: &[String],
+    new_phones: Vec<String>,
     id: i32,
 ) -> Result<(), Error> {
-    old_phones.iter().for_each(|item| {
-        if !new_phones.contains(item) {
-            new_phones.push(item.clone());
-        }
-    });
-
+    println!("{:?}", new_phones);
     let mut result: Vec<PhoneNumber> = Vec::new();
     for p in new_phones {
         let phone = PhoneNumber {
@@ -125,6 +112,7 @@ pub async fn update_phones(
     .await?;
 
     for phone_ent in result {
+        println!("{:?}", phone_ent.num);
         let _phone_result = db
             .run(move |conn| {
                 diesel::insert_into(phone_numbers::table)

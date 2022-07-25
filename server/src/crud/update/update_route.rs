@@ -2,8 +2,7 @@ use diesel::dsl::not;
 use diesel::prelude::*;
 use diesel::{QueryDsl, RunQueryDsl};
 use rocket::fairing::AdHoc;
-use rocket::form::Form;
-use rocket::response::Redirect;
+use rocket::serde::json::Json;
 
 use crate::crud::shared::{ContactForm, Db, Result};
 use crate::models::{AddressEntity, PersonEntity};
@@ -13,8 +12,8 @@ use crate::crud::read::read_helper::{
     get_address, get_email_ents, get_person_by_id, get_phone_ents,
 };
 
-#[post("/update/form/id/<id>", data = "<new_contact>")]
-async fn update_form_by_id(db: Db, id: i32, new_contact: Form<ContactForm>) -> Result<Redirect> {
+#[post("/update/json/id/<id>", data = "<new_contact>")]
+async fn update_json_id(db: Db, id: i32, new_contact: Json<ContactForm>) -> Result<()> {
     let person_ent = get_person_by_id(&db, id).await?;
     let _address_ent = get_address(&db, person_ent.address_id).await?;
     let phone_number_ents = get_phone_ents(&db, id).await?;
@@ -25,25 +24,23 @@ async fn update_form_by_id(db: Db, id: i32, new_contact: Form<ContactForm>) -> R
     let person_ent = update_person(&new_contact, address_id_copy);
     let address_ent = update_address(&new_contact);
 
-    let new_phones = new_contact.phone_numbers[0]
-        .split(' ')
+    let new_phones = new_contact
+        .phone_numbers
+        .iter()
+        .filter(|s| !s.is_empty())
         .map(|s| s.to_string().to_lowercase())
         .collect::<Vec<String>>();
-    let old_phones = phone_number_ents
-        .iter()
-        .map(|x| x.num.clone().to_lowercase())
-        .collect::<Vec<String>>();
-    let _phone_number_ents = update_phones(&db, new_phones, &old_phones, id);
 
-    let new_emails = new_contact.emails[0]
-        .split(' ')
+    update_phones(&db, new_phones, id).await?;
+
+    let new_emails = new_contact.emails
+        .iter()
+        .filter(|s| !s.is_empty())
         .map(|s| s.to_string().to_lowercase())
         .collect::<Vec<String>>();
-    let old_emails = email_ents
-        .iter()
-        .map(|x| x.email.clone().to_lowercase())
-        .collect::<Vec<String>>();
-    let _email_ents = update_emails(&db, new_emails, &old_emails, id);
+
+    println!("{:?}", new_emails);
+    update_emails(&db, new_emails, id).await?;
 
     use crate::schema::people::dsl::*;
     let _person_result: PersonEntity = db
@@ -63,7 +60,7 @@ async fn update_form_by_id(db: Db, id: i32, new_contact: Form<ContactForm>) -> R
         })
         .await?;
 
-    Ok(Redirect::to(uri!("/")))
+    Ok(())
 }
 
 #[get("/toggle/fav/id/<id>")]
@@ -82,6 +79,6 @@ async fn toggle_fav_by_id(db: Db, id: i32) -> Result<()> {
 
 pub fn stage() -> AdHoc {
     AdHoc::on_ignite("Diesel Stage", |rocket| async {
-        rocket.mount("/api", routes![update_form_by_id, toggle_fav_by_id])
+        rocket.mount("/api", routes![update_json_id, toggle_fav_by_id])
     })
 }

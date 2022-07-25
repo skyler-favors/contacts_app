@@ -120,19 +120,50 @@ fn list_item(props: &ListItemProps) -> Html {
 
         if *toggle_list {
             <ol>
-                <li>{format!("Nickname: {}", &contact.nickname)}</li>
-                <li>{format!("Company: {}", &contact.company)}</li>
-                <li>{format!("Website: {}", &contact.url)}</li>
-                <li>{format!("Notes: {}", &contact.notes)}</li>
-                <li>{format!("Favorite: {}", &contact.favorite)}</li>
-                <li>{format!("Active: {}", &contact.active)}</li>
-                <li>{format!("Street: {}", &contact.street)}</li>
-                <li>{format!("City: {}", &contact.city)}</li>
-                <li>{format!("State: {}", &contact.state)}</li>
-                <li>{format!("Zip-Code: {}", &contact.zip)}</li>
-                <li>{format!("Country: {}", &contact.country)}</li>
-                <li>{format!("Emails: {:?}", &contact.emails)}</li>
-                <li>{format!("Phone Numbers: {:?}", &contact.phone_numbers)}</li>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Nickname:"}</li>
+                    <li>{&contact.nickname}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Company: "}</li>
+                    <li>{&contact.company}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Website: "}</li>
+                    <li>{&contact.url}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Notes: "}</li>
+                    <li>{&contact.notes}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Street: "}</li>
+                    <li>{&contact.street}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"City: "}</li>
+                    <li>{&contact.city}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"State: "}</li>
+                    <li>{&contact.state}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Zip-Code: "}</li>
+                    <li>{&contact.zip}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Country: "}</li>
+                    <li>{&contact.country}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Emails: "}</li>
+                    <li>{&contact.emails.iter().map(|s| format!("{}, ", s)).collect::<String>()}</li>
+                </div>
+                <div class={classes!("flex", "flex-row")}>
+                    <li class={classes!("font-bold", "mr-3")}>{"Phone Numbers: "}</li>
+                    <li>{&contact.phone_numbers.iter().map(|s| format!("{}, ", s)).collect::<String>()}</li>
+                </div>
             </ol>
         }
         </>

@@ -1,7 +1,7 @@
 use crate::Filter;
 use serde::{Deserialize, Serialize};
-use web_sys::console::log_1;
 use std::rc::Rc;
+use web_sys::console::log_1;
 
 pub async fn fetch_all() -> Result<Vec<Contact>, Rc<reqwest::Error>> {
     let body: Vec<ContactNullables> = reqwest::get("http://localhost:8000/api/read/all")
@@ -30,6 +30,39 @@ pub async fn delete_all() -> Result<(), Rc<reqwest::Error>> {
     Ok(())
 }
 
+#[derive(Serialize, Deserialize)]
+struct Id {
+    id: i32,
+}
+
+pub async fn create_contact(data: &ContactNullables) -> Result<i32, Rc<reqwest::Error>> {
+    let host = "http://localhost:8000/api/create/json";
+    let client = reqwest::Client::new();
+
+    let id: Id = client
+        .post(host)
+        .json(&data)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    Ok(id.id)
+}
+
+pub async fn update_contact(data: &ContactNullables) -> Result<(), Rc<reqwest::Error>> {
+    let host = &format!("http://localhost:8000/api/update/json/id/{}", data.id);
+    let client = reqwest::Client::new();
+    let mut data = data.clone();
+
+    data.emails = data.emails.iter().map(|s| s.chars().filter(|c| c != &',').collect::<String>()).collect();
+    data.phone_numbers = data.phone_numbers.iter().map(|s| s.chars().filter(|c| c.is_numeric()).collect::<String>()).collect();
+
+    client.post(host).json(&data).send().await?;
+
+    Ok(())
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ContactNullables {
     // person table
@@ -55,6 +88,29 @@ pub struct ContactNullables {
 
     // phone number table
     pub phone_numbers: Vec<String>,
+}
+
+impl ContactNullables {
+    pub fn new(data: &Contact) -> ContactNullables {
+        ContactNullables {
+            id: data.id,
+            firstname: data.firstname.clone(),
+            lastname: Some(data.lastname.clone()),
+            nickname: Some(data.nickname.clone()),
+            company: Some(data.company.clone()),
+            url: Some(data.url.clone()),
+            notes: Some(data.notes.clone()),
+            favorite: data.favorite,
+            active: data.active,
+            street: Some(data.street.clone()),
+            city: Some(data.city.clone()),
+            state: Some(data.state.clone()),
+            zip: Some(data.zip.clone()),
+            country: Some(data.country.clone()),
+            emails: data.emails.clone(),
+            phone_numbers: data.phone_numbers.clone(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -161,8 +217,8 @@ impl Contact {
             state: data[8].clone(),
             zip: data[9].clone(),
             country: data[10].clone(),
-            emails: data[11].split(" ").map(|s| s.to_string()).collect(),
-            phone_numbers:data[12].split(" ").map(|s| s.to_string()).collect(), 
+            emails: data[11].split(", ").map(|s| s.to_string()).collect(),
+            phone_numbers: data[12].split(", ").map(|s| s.to_string()).collect(),
             id: data[13].parse::<i32>().unwrap(),
             favorite: data[14].parse::<bool>().unwrap(),
             active: data[15].parse::<bool>().unwrap(),
@@ -170,9 +226,23 @@ impl Contact {
     }
 
     pub fn to_vec(data: Contact) -> Vec<String> {
-        vec![data.firstname, data.lastname, data.nickname, data.company,
-        data.url, data.notes, data.street, data.city, data.state, data.zip,
-        data.country, format!("{:?}", data.emails), format!("{:?}", data.phone_numbers)]
+        let emails: String = data.emails.iter().map(|s| format!("{}, ", s)).collect();
+        let phone_numbers: String = data.phone_numbers.iter().map(|s| format!("{}, ", s)).collect();
+        vec![
+            data.firstname,
+            data.lastname,
+            data.nickname,
+            data.company,
+            data.url,
+            data.notes,
+            data.street,
+            data.city,
+            data.state,
+            data.zip,
+            data.country,
+            emails,
+            phone_numbers,
+        ]
     }
 }
 
