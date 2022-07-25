@@ -10,7 +10,7 @@ use crate::shared::*;
 #[function_component(ContactList)]
 pub fn contact_list() -> Html {
     // holds the value thats typed into the input
-    let search_value: UseStateHandle<Option<String>> = use_state(|| None);
+    let search_value: UseStateHandle<String> = use_state(|| "");
     let toggle = use_bool_toggle(false);
 
     // calls the correct fetch request based on the input value

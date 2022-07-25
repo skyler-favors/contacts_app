@@ -4,52 +4,87 @@ use std::rc::Rc;
 use yew::prelude::*;
 
 pub enum Actions {
-    Push(Filter),
-    Update(Rc<Vec<Rc<Contact>>>),
+    Filter(Filter),
+    Favorite(Contact),
+    Trash(Contact),
+    Delete,
+    Create(Contact),
+    Edit(usize, Contact),
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Default)]
 pub struct AppContext {
-    pub contacts: Rc<Vec<Rc<Contact>>>,
-    pub filters: Rc<Vec<Filter>>,
-}
-
-impl Default for AppContext {
-    fn default() -> Self {
-        Self {
-            contacts: Rc::new(Vec::new()),
-            filters: Rc::new(Vec::new()),
-        }
-    }
+    pub contacts: Vec<Contact>,
+    pub filters: Vec<Filter>,
 }
 
 impl Reducible for AppContext {
     type Action = Actions;
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        let next_ctx = match action {
-            Actions::Push(f) => {
-                let mut new_filters: Vec<Filter> = self.filters.to_vec();
-                let index = self.filters.iter().position(|x| x == &f);
-                match index {
-                    Some(i) => {
-                        new_filters.remove(i);
-                    }
-                    None => {
-                        new_filters.push(f);
-                    }
-                }
+        let contacts = Rc::new(self.contacts.clone());
+        let filters = Rc::new(self.filters.clone());
+        let mut new_filters: Vec<Filter> = self.filters.clone();
+        let mut new_contacts: Vec<Contact> = self.contacts.clone();
 
-                AppContext {
-                    contacts: self.contacts.clone(),
-                    filters: Rc::new(new_filters),
+
+        match action {
+            Actions::Filter(f) => {
+                let index = filters.iter().position(|x| match x {
+                    Filter::Favorites => x == &f,
+                    Filter::Trash => x == &f,
+                    Filter::Search(_old) => {
+                        matches!(&f, Filter::Search(_new))
+                    }
+                });
+                match &f {
+                    Filter::Search(new) => match index {
+                        Some(i) => {
+                            if new.is_empty() {
+                                new_filters.remove(i);
+                            } else {
+                                new_filters.remove(i);
+                                new_filters.push(f);
+                            }
+                        }
+                        None => {
+                            new_filters.push(f);
+                        }
+                    },
+                    _ => match index {
+                        Some(i) => {
+                            new_filters.remove(i);
+                        }
+                        None => {
+                            new_filters.push(f);
+                        }
+                    },
                 }
             }
-            Actions::Update(v) => AppContext {
-                contacts: v,
-                filters: self.filters.clone(),
+            Actions::Trash(c) => {
+                let index = contacts.iter().position(|x| x == &c).expect("error");
+                new_contacts[index].active = !contacts[index].active;
             },
+            Actions::Favorite(c) => {
+                let index = contacts.iter().position(|x| x == &c).expect("error");
+                new_contacts[index].favorite = !contacts[index].favorite;
+            },
+            Actions::Edit(i, c) => {
+                new_contacts[i] = c;
+            },
+            Actions::Create(c) => {
+                new_contacts.push(c);
+            },
+            Actions::Delete => {
+                new_contacts = new_contacts.clone().into_iter().filter(|x| x.active).collect();
+            }
+        }
+
+        let new_ctx = AppContext {
+            contacts: new_contacts,
+            filters: new_filters,
         };
-        Rc::new(next_ctx)
+
+        Rc::new(new_ctx)
     }
 }
 
@@ -57,7 +92,7 @@ pub type MessageContext = UseReducerHandle<AppContext>;
 
 #[derive(Properties, Debug, PartialEq)]
 pub struct MessageProviderProps {
-    pub contacts: Rc<Vec<Rc<Contact>>>,
+    pub contacts: Vec<Contact>,
     #[prop_or_default]
     pub children: Children,
 }
@@ -66,7 +101,7 @@ pub struct MessageProviderProps {
 pub fn message_provider(props: &MessageProviderProps) -> Html {
     let msg = use_reducer(|| AppContext {
         contacts: props.contacts.clone(),
-        filters: Rc::new(Vec::new()),
+        filters: Vec::new(),
     });
 
     html! {

@@ -1,9 +1,10 @@
 use yew::prelude::*;
+use web_sys::HtmlInputElement;
 use yew_octicons::{Icon, IconKind};
-use super::Actions;
-use yew_hooks::prelude::*;
+use crate::shared::delete_all;
 
-use super::MessageContext;
+use super::msg_ctx::{Actions, MessageContext};
+use yew_hooks::prelude::*;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Filter {
@@ -19,17 +20,38 @@ pub fn search() -> Html {
     let onclick_fav = {
         let ctx = msg_ctx.clone();
         Callback::from(move |_| {
-            ctx.dispatch(Actions::Push(Filter::Favorites))
+            ctx.dispatch(Actions::Filter(Filter::Favorites))
+        })
+    };
+    
+    let toggle_empty_trash = use_bool_toggle(false);
+    let onclick_trash = {
+        let ctx = msg_ctx.clone();
+        let toggle = toggle_empty_trash.clone();
+        Callback::from(move |_| {
+            ctx.dispatch(Actions::Filter(Filter::Trash));
+            toggle.toggle();
         })
     };
 
-    let toggle_empty_trash = use_bool_toggle(false);
-let onclick_trash = {
-        let ctx = msg_ctx;
-        let toggle = toggle_empty_trash.clone();
+    let full_delete = use_async(async move {
+        delete_all().await
+    });
+
+    let onclick_empty = {
+        let ctx = msg_ctx.clone();
         Callback::from(move |_| {
-            ctx.dispatch(Actions::Push(Filter::Trash));
-            toggle.toggle();
+            full_delete.run();
+            ctx.dispatch(Actions::Delete);
+        })
+    };
+
+    // saves the input value
+    let oninput = {
+        let ctx = msg_ctx;
+        Callback::from(move |e: InputEvent| {
+            let input: HtmlInputElement = e.target_unchecked_into();
+            ctx.dispatch(Actions::Filter(Filter::Search(input.value().to_lowercase())))
         })
     };
 
@@ -37,7 +59,7 @@ let onclick_trash = {
         <>
             <header class={classes!("flex", "flex-row", "justify-center")}>
                 <i>{ Icon::new_big(IconKind::Search) }</i>
-                <input type="search"
+                <input {oninput} type="search"
                     class={classes!("ml-2", "border-solid", "border-2", 
                         "bg-zinc-700", "text-zinc-200", "mb-5")}/>
 
@@ -58,7 +80,7 @@ let onclick_trash = {
                 </button>
 
                 if *toggle_empty_trash {
-                 <button class={classes!("border-solid", "border-2", "mb-5")}>
+                 <button onclick={onclick_empty} class={classes!("border-solid", "border-2", "mb-5")}>
                     <div class={classes!("flex", "flex-row", "justify-center")}>
                         <i class={classes!("mx-3", "mt-1")}>
                             { Icon::new(IconKind::Trash) }</i>

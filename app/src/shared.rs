@@ -1,16 +1,33 @@
-use serde::{Deserialize, Serialize};
-use std::rc::Rc;
 use crate::Filter;
+use serde::{Deserialize, Serialize};
+use web_sys::console::log_1;
+use std::rc::Rc;
 
-pub async fn fetch_all() -> Result<Rc<Vec<Rc<Contact>>>, Rc<reqwest::Error>> {
+pub async fn fetch_all() -> Result<Vec<Contact>, Rc<reqwest::Error>> {
     let body: Vec<ContactNullables> = reqwest::get("http://localhost:8000/api/read/all")
         .await?
         .json()
         .await?;
 
-    let contacts: Vec<Rc<Contact>> = body.iter().map(|x| Rc::new(Contact::new(x))).collect();
+    let mut contacts: Vec<Contact> = body.into_iter().map(|x| Contact::new(&x)).collect();
+    contacts.sort_by_key(|c| c.firstname.clone());
 
-    Ok(Rc::new(contacts))
+    Ok(contacts)
+}
+
+pub async fn toggle_trash(id: i32) -> Result<(), Rc<reqwest::Error>> {
+    reqwest::get(format!("http://localhost:8000/api/toggle/trash/id/{}", id)).await?;
+    Ok(())
+}
+
+pub async fn toggle_fav(id: i32) -> Result<(), Rc<reqwest::Error>> {
+    reqwest::get(format!("http://localhost:8000/api/toggle/fav/id/{}", id)).await?;
+    Ok(())
+}
+
+pub async fn delete_all() -> Result<(), Rc<reqwest::Error>> {
+    reqwest::get("http://localhost:8000/api/delete/all").await?;
+    Ok(())
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -40,7 +57,7 @@ pub struct ContactNullables {
     pub phone_numbers: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Contact {
     // person table
     pub id: i32,
@@ -129,16 +146,54 @@ impl Contact {
             phone_numbers: old_contact.phone_numbers.clone(),
         }
     }
-}
 
-pub fn seive(mut contacts: Vec<Rc<Contact>>, filters: &Vec<Filter>) -> Vec<Rc<Contact>> {
-    for filter in filters {
-        contacts = match filter {
-            Filter::Favorites => contacts.into_iter().filter(|x| x.favorite).collect(),
-            Filter::Trash => contacts.into_iter().filter(|x| !x.active).collect(),
-            Filter::Search(s) => contacts.into_iter().filter(|x| x.firstname.contains(s)).collect(),
-        };
+    pub fn builder(data: Vec<String>) -> Contact {
+        log_1(&format!("{:?}", data).into());
+        Contact {
+            firstname: data[0].clone(),
+            lastname: data[1].clone(),
+            nickname: data[2].clone(),
+            company: data[3].clone(),
+            url: data[4].clone(),
+            notes: data[5].clone(),
+            street: data[6].clone(),
+            city: data[7].clone(),
+            state: data[8].clone(),
+            zip: data[9].clone(),
+            country: data[10].clone(),
+            emails: data[11].split(" ").map(|s| s.to_string()).collect(),
+            phone_numbers:data[12].split(" ").map(|s| s.to_string()).collect(), 
+            id: data[13].parse::<i32>().unwrap(),
+            favorite: data[14].parse::<bool>().unwrap(),
+            active: data[15].parse::<bool>().unwrap(),
+        }
     }
 
-    contacts
+    pub fn to_vec(data: Contact) -> Vec<String> {
+        vec![data.firstname, data.lastname, data.nickname, data.company,
+        data.url, data.notes, data.street, data.city, data.state, data.zip,
+        data.country, format!("{:?}", data.emails), format!("{:?}", data.phone_numbers)]
+    }
+}
+
+pub fn seive(contacts: &[Contact], filters: &Vec<Filter>) -> Vec<Contact> {
+    let mut new_contacts = contacts.to_owned();
+    if !filters.iter().any(|x| x == &Filter::Trash) {
+        new_contacts = new_contacts
+            .into_iter()
+            .filter(|x| x.active)
+            .collect::<Vec<Contact>>();
+    }
+
+    for filter in filters {
+        new_contacts = match filter {
+            Filter::Favorites => new_contacts.into_iter().filter(|x| x.favorite).collect(),
+            Filter::Trash => new_contacts.into_iter().filter(|x| !x.active).collect(),
+            Filter::Search(s) => new_contacts
+                .into_iter()
+                .filter(|x| x.firstname.contains(s))
+                .collect(),
+        };
+    }
+    new_contacts
 }

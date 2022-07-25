@@ -8,7 +8,7 @@ use msg_ctx::MessageProvider;
 pub enum FetchState {
     NotFetching,
     Fetching,
-    Success(Rc<Vec<Rc<Contact>>>),
+    Success(Vec<Contact>),
     Failed(Rc<reqwest::Error>),
 }
 
@@ -63,7 +63,8 @@ impl Component for Root {
             FetchState::Success(contacts) => {
         
                 html! {
-                    <MessageProvider {contacts}>
+                    <MessageProvider contacts={contacts.clone()}>
+                        <Create />
                         <Search />
                         <List />
                     </MessageProvider>
