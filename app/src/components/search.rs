@@ -1,7 +1,9 @@
-use yew::prelude::*;
-use web_sys::HtmlInputElement;
-use yew_octicons::{Icon, IconKind};
 use crate::shared::delete_all;
+use crate::JsonForm;
+use web_sys::HtmlInputElement;
+use yew::prelude::*;
+use yew_octicons::{Icon, IconKind};
+use crate::HoverIcon;
 
 use super::msg_ctx::{Actions, MessageContext};
 use yew_hooks::prelude::*;
@@ -23,7 +25,7 @@ pub fn search() -> Html {
             ctx.dispatch(Actions::Filter(Filter::Favorites))
         })
     };
-    
+
     let toggle_empty_trash = use_bool_toggle(false);
     let onclick_trash = {
         let ctx = msg_ctx.clone();
@@ -34,9 +36,7 @@ pub fn search() -> Html {
         })
     };
 
-    let full_delete = use_async(async move {
-        delete_all().await
-    });
+    let full_delete = use_async(async move { delete_all().await });
 
     let onclick_empty = {
         let ctx = msg_ctx.clone();
@@ -51,46 +51,57 @@ pub fn search() -> Html {
         let ctx = msg_ctx;
         Callback::from(move |e: InputEvent| {
             let input: HtmlInputElement = e.target_unchecked_into();
-            ctx.dispatch(Actions::Filter(Filter::Search(input.value().to_lowercase())))
+            ctx.dispatch(Actions::Filter(Filter::Search(
+                input.value().to_lowercase(),
+            )))
+        })
+    };
+
+    let toggle_create = use_bool_toggle(false);
+
+    let onclick_create = {
+        let toggle = toggle_create.clone();
+        Callback::from(move |_| {
+            toggle.toggle();
         })
     };
 
     html! {
         <>
-            <header class={classes!("flex", "flex-row", "justify-center")}>
-                <i>{ Icon::new_big(IconKind::Search) }</i>
-                <input {oninput} type="search"
-                    class={classes!("ml-2", "border-solid", "border-2", 
-                        "bg-zinc-700", "text-zinc-200", "mb-5")}/>
-
-                <button onclick={onclick_fav} class={classes!("border-solid", "border-2", "mb-5")}>
-                    <div class={classes!("flex", "flex-row", "justify-center")}>
-                        <i class={classes!("mx-3", "mt-1")}>
-                            { Icon::new(IconKind::HeartFill) }</i>
-                        { "Show Favorites" }
+            <header class={classes!("flex", "flex-row", "justify-between")}>
+                <div class={classes!("justify-self-center", "flex", "flex-col", "ml-5")}>
+                    <div class={classes!("flex", "flex-row", "justify-self-center")}>
+                        <i class={classes!()}>{ Icon::new_big(IconKind::Search) }</i>
+                        <input {oninput} type="search"
+                            class={classes!("ml-2", "border-solid", "border-2")}/>
                     </div>
-                </button>
 
-                <button onclick={onclick_trash} class={classes!("border-solid", "border-2", "mb-5")}>
-                    <div class={classes!("flex", "flex-row", "justify-center")}>
-                        <i class={classes!("mx-3", "mt-1")}>
-                            { Icon::new(IconKind::Trash) }</i>
-                        { "Show Trash" }
+                    <div class={classes!("grid", "grid-cols-3", "gap-4")}>
+        
+                        <button onclick={onclick_fav} class={classes!("col-start-1")}>
+                            <HoverIcon icon={IconKind::HeartFill} text={"Filter Favorites"} />
+                        </button>
+
+                        <button onclick={onclick_trash} class={classes!("col-start-2")}>
+                            <HoverIcon icon={IconKind::Trash} text={"Filter Trash"} />
+                        </button>
+
+                        if *toggle_empty_trash {
+                         <button onclick={onclick_empty} class={classes!("col-start-3")}>
+                            <HoverIcon icon={IconKind::Flame} text={"Empty Trash"} />
+                        </button>
+                        }
                     </div>
-                </button>
+                </div>
 
-                if *toggle_empty_trash {
-                 <button onclick={onclick_empty} class={classes!("border-solid", "border-2", "mb-5")}>
-                    <div class={classes!("flex", "flex-row", "justify-center")}>
-                        <i class={classes!("mx-3", "mt-1")}>
-                            { Icon::new(IconKind::Trash) }</i>
-                        { "Empty Trash" }
-                    </div>
+                <button onclick={onclick_create} class={classes!("mr-5")}>
+                    <HoverIcon icon={IconKind::PersonAdd} text={"Create New Contact"} />
                 </button>
-                }
-
-   
             </header>
+            if *toggle_create {
+                <JsonForm />
+            }
         </>
     }
 }
+

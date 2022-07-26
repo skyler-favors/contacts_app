@@ -1,8 +1,13 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ["./src/**/*.{html,rs}"],
-    theme: {
-        extend: {},
+  content: ["./src/**/*.{html,rs,css}"],
+  theme: {
+      extend: {},
+  },
+  variants: {
+    extend: {
+      borderRadius: ['hover'],
+      visibility: ['group-hover'],
     },
-    plugins: [],
+  },
+  plugins: [],
 }

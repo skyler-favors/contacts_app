@@ -106,7 +106,9 @@ pub fn json_form(props: &JsonFormProps) -> Html {
             html! {
             <div>
                 {inputs}
-                <button class={classes!("border-solid", "border-2", "mb-5")} {onclick}>{"Submit"}</button>
+                <div class={classes!("flex", "justify-center")}>
+                    <button class={classes!("border-solid", "border-2", "mb-5", "flex-1/3", "font-bold", "mt-3")} {onclick}>{"Submit"}</button>
+                </div>
             </div>
             }
         }
@@ -144,7 +146,9 @@ pub fn json_form(props: &JsonFormProps) -> Html {
             html! {
             <div>
                 {inputs}
-                <button class={classes!("border-solid", "border-2", "mb-5")} {onclick}>{"Submit"}</button>
+                <div class={classes!("flex", "flex-row", "justify-center")}>
+                    <button class={classes!("border-solid", "border-2", "mb-5", "mt-3")} {onclick}>{"Submit"}</button>
+                </div>
             </div>
             }
         }

@@ -15,10 +15,6 @@
 - Tauri: creates a desktop application from a webpage.
 
 ## TODO
-- fix email and phone number edit
-- clean up emails and phone numbers
 - Add image support
-- combine search bars into one
-- auto refresh
+- More filters, filter by specific field
 - implement Tauri frameworks
-- Auto fetch contacts when page first loads

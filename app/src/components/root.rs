@@ -64,7 +64,6 @@ impl Component for Root {
         
                 html! {
                     <MessageProvider contacts={contacts.clone()}>
-                        <Create />
                         <Search />
                         <List />
                     </MessageProvider>

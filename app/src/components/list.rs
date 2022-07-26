@@ -41,13 +41,13 @@ fn list_item(props: &ListItemProps) -> Html {
     let contact = &props.contact;
     let toggle_list = use_bool_toggle(false);
 
-    let mut heart_icon = Icon::new_big(IconKind::Heart);
-    let mut trash_icon = Icon::new_big(IconKind::Trash);
+    let mut heart_icon: Html = html! {<i class={classes!()}>{Icon::new_big(IconKind::Heart)}</i>};
+    let mut trash_icon: Html = html! {<i class={classes!()}>{Icon::new_big(IconKind::Trash)}</i>};
     if !contact.active {
-        trash_icon = Icon::new_big(IconKind::Upload);
+        trash_icon = html! {<i class={classes!()}>{Icon::new_big(IconKind::Upload)}</i>};
     }
     if contact.favorite {
-        heart_icon = Icon::new_big(IconKind::HeartFill);
+        heart_icon = html! {<i class={classes!("text-red-500")}>{Icon::new_big(IconKind::HeartFill)}</i>};
     }
 
     let onclick_list = {
@@ -100,15 +100,15 @@ fn list_item(props: &ListItemProps) -> Html {
             </button>
 
             <button onclick={onclick_trash} class={classes!("mx-3", "float-right")}>
-                <i>{ trash_icon }</i>
+                { trash_icon }
             </button>
 
             <button onclick={onclick_fav} class={classes!("mx-3", "float-right")}>
-                <i>{ heart_icon }</i>
+                { heart_icon }
             </button>
 
             <button onclick={onclick_edit} class={classes!("mx-3", "float-right")}>
-                <i>{ Icon::new_big(IconKind::Pencil) }</i>
+                { Icon::new_big(IconKind::Pencil) }
             </button>
         </div>
 

@@ -267,3 +267,4 @@ pub fn seive(contacts: &[Contact], filters: &Vec<Filter>) -> Vec<Contact> {
     }
     new_contacts
 }
+
